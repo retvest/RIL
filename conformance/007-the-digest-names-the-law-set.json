@@ -1,0 +1,13 @@
+{
+  "spec": "§8, §5.4",
+  "about": "The digest is SHA-256 of the RFC 8785 canonical form. Law order, rule order, layout, comments and the Unicode form of strings do not change it; any change to a rule does.",
+  "laws": "laws \"conformance\" version 1\n\nlaw a-reads\n  says  \"Café readers may read.\"\n  why   \"Conformance.\"\n  on    action read of Doc\n  permit when principal in Group::\"admins\"\n  forbid when context.amount > 100\n  evidence watched\n\nlaw b-code\n  says  \"Code law.\"\n  why   \"Conformance.\"\n  on    code \"src/**/*.rs\", \"lib/*.rs\"\n  evidence tested by command \"make laws\"\n",
+  "digest": "84a84bc24b120956a4156f82af93c4838d88f9d2e361caffb7f615957671afa4",
+  "same_law_set": [
+    "# comments and layout do not count\nlaws \"conformance\" version 1\nlaw b-code\n says \"Code law.\"\n why \"Conformance.\"\n on code \"lib/*.rs\", \"src/**/*.rs\"\n evidence tested by command \"make laws\"\nlaw a-reads\n says \"Café readers may read.\"\n why \"Conformance.\"\n on action read of Doc\n forbid when context.amount>100\n permit when principal in Group::\"admins\"\n evidence watched\n"
+  ],
+  "other_law_sets": [
+    "laws \"conformance\" version 1\n\nlaw a-reads\n  says  \"Café readers may read.\"\n  why   \"Conformance.\"\n  on    action read of Doc\n  permit when principal in Group::\"admins\"\n  forbid when context.amount > 101\n  evidence watched\n\nlaw b-code\n  says  \"Code law.\"\n  why   \"Conformance.\"\n  on    code \"src/**/*.rs\", \"lib/*.rs\"\n  evidence tested by command \"make laws\"\n",
+    "laws \"conformance\" version 2\n\nlaw a-reads\n  says  \"Café readers may read.\"\n  why   \"Conformance.\"\n  on    action read of Doc\n  permit when principal in Group::\"admins\"\n  forbid when context.amount > 100\n  evidence watched\n\nlaw b-code\n  says  \"Code law.\"\n  why   \"Conformance.\"\n  on    code \"src/**/*.rs\", \"lib/*.rs\"\n  evidence tested by command \"make laws\"\n"
+  ]
+}

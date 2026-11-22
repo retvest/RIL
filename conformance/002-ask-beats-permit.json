@@ -1,0 +1,9 @@
+{
+  "spec": "§5.2",
+  "about": "With no forbid applying, an ask that applies holds for approval and names the asking laws.",
+  "laws": "laws \"conformance\" version 1\n\nlaw reads\n  says  \"reads\"\n  why   \"Conformance.\"\n  on    action read of Doc\n  permit\n  evidence watched\n\nlaw big\n  says  \"big\"\n  why   \"Conformance.\"\n  on    action read of Doc\n  ask when context.amount > 100\n  evidence watched\n",
+  "decisions": [
+    { "request": {"principal":{"entity_type":"User","id":"alice"},"action":"read","resource":{"entity_type":"Doc","id":"w1"},"context":{"amount":{"long":"500"}},"entities":[]}, "verdict": "hold", "laws": ["big"], "errors": [] },
+    { "request": {"principal":{"entity_type":"User","id":"alice"},"action":"read","resource":{"entity_type":"Doc","id":"w1"},"context":{"amount":{"long":"50"}},"entities":[]}, "verdict": "allow", "laws": ["reads"], "errors": [] }
+  ]
+}

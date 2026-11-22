@@ -1,0 +1,10 @@
+{
+  "spec": "§5.3",
+  "about": "A condition that cannot be evaluated makes a forbid or ask apply and a permit not apply; every erroring law is reported.",
+  "laws": "laws \"conformance\" version 1\n\nlaw reads\n  says  \"reads\"\n  why   \"Conformance.\"\n  on    action read of Doc\n  permit when principal.age > 17\n  evidence watched\n\nlaw open\n  says  \"open\"\n  why   \"Conformance.\"\n  on    action open of Doc\n  permit\n  evidence watched\n\nlaw review\n  says  \"review\"\n  why   \"Conformance.\"\n  on    action open of Doc\n  ask when context.missing == 1\n  evidence watched\n\nlaw share\n  says  \"share\"\n  why   \"Conformance.\"\n  on    action share of Doc\n  permit\n  evidence watched\n\nlaw guard\n  says  \"guard\"\n  why   \"Conformance.\"\n  on    action share of Doc\n  forbid when resource.missing == 1\n  evidence watched\n",
+  "decisions": [
+    { "request": {"principal":{"entity_type":"User","id":"alice"},"action":"read","resource":{"entity_type":"Doc","id":"w1"},"context":{},"entities":[]}, "verdict": "deny", "laws": [], "errors": ["reads"] },
+    { "request": {"principal":{"entity_type":"User","id":"alice"},"action":"open","resource":{"entity_type":"Doc","id":"w1"},"context":{},"entities":[]}, "verdict": "hold", "laws": ["review"], "errors": ["review"] },
+    { "request": {"principal":{"entity_type":"User","id":"alice"},"action":"share","resource":{"entity_type":"Doc","id":"w1"},"context":{},"entities":[]}, "verdict": "deny", "laws": ["guard"], "errors": ["guard"] }
+  ]
+}

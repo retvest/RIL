@@ -1,0 +1,29 @@
+{
+  "name": "ril-laws",
+  "displayName": "RIL Laws",
+  "description": "Syntax highlighting and midnight color theme tokens for RIL Laws (laws.ril) files.",
+  "version": "0.2.0",
+  "publisher": "retvest",
+  "license": "Apache-2.0",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": ["Programming Languages"],
+  "contributes": {
+    "languages": [
+      {
+        "id": "ril",
+        "aliases": ["RIL Laws", "ril"],
+        "extensions": [".ril"],
+        "filenames": ["laws.ril"]
+      }
+    ],
+    "grammars": [
+      {
+        "language": "ril",
+        "scopeName": "source.ril",
+        "path": "../ril-laws.tmLanguage.json"
+      }
+    ]
+  }
+}

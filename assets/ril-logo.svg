@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 80" width="360" height="80" fill="none" role="img" aria-label="Retvest RIL Laws">
+  <defs>
+    <linearGradient id="retvest-ril-brand" x1="60" y1="120" x2="440" y2="440" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#9ab8ff"/>
+      <stop offset="40%" stop-color="#a98bff"/>
+      <stop offset="75%" stop-color="#ff7ab8"/>
+      <stop offset="100%" stop-color="#ffc871"/>
+    </linearGradient>
+    <linearGradient id="retvest-ril-border" x1="0" y1="0" x2="360" y2="80" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#9ab8ff" stop-opacity="0.45"/>
+      <stop offset="50%" stop-color="#a98bff" stop-opacity="0.24"/>
+      <stop offset="100%" stop-color="#ffc871" stop-opacity="0.38"/>
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="358" height="78" rx="20" fill="#0b0c0e" stroke="url(#retvest-ril-border)" stroke-width="1.6"/>
+  <!-- Official Retvest mark -->
+  <g transform="translate(18, 12) scale(0.145) translate(-40, -90)" fill="url(#retvest-ril-brand)">
+    <path d="M145 105 L305 105 C395 105 438 155 438 224 C438 283 405 327 349 342 L430 442 L352 442 L282 350 C262 322 270 289 300 276 C334 260 357 244 357 211 C357 178 332 161 293 161 L119 161 Z"/>
+    <path d="M173 250 L284 250 L205 330 L292 442 L202 442 L118 331 Z"/>
+    <rect x="56" y="202" width="97" height="10" rx="5"/>
+    <circle cx="66" cy="207" r="16"/>
+  </g>
+  <!-- Wordmark -->
+  <text x="92" y="48" fill="#f2f3f5" font-family="'DM Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="700" letter-spacing="0.06em">retvest</text>
+  <text x="208" y="48" fill="#9ab8ff" font-family="'DM Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif" font-size="28" font-weight="600" letter-spacing="0.08em">RIL</text>
+  <rect x="278" y="25" width="60" height="28" rx="14" fill="#11281c" stroke="#79dba8" stroke-opacity="0.55" stroke-width="1.2"/>
+  <text x="308" y="43.5" text-anchor="middle" fill="#79dba8" font-family="'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace" font-size="12.5" font-weight="600">v0.2</text>
+</svg>

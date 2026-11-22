@@ -1,0 +1,8 @@
+{
+  "spec": "§15 item 2",
+  "about": "A request naming an invalid entity type cannot be evaluated at all: it is denied, no law applies, and the error is reported under (request).",
+  "laws": "laws \"conformance\" version 1\n\nlaw reads\n  says  \"reads\"\n  why   \"Conformance.\"\n  on    action read of Doc\n  permit\n  evidence watched\n",
+  "decisions": [
+    { "request": { "principal": { "entity_type": "service account", "id": "bot" }, "action": "read", "resource": { "entity_type": "Doc", "id": "w1" }, "context": {}, "entities": [] }, "verdict": "deny", "laws": [], "errors": ["(request)"] }
+  ]
+}

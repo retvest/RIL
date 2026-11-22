@@ -1,0 +1,37 @@
+{
+  "spec": "\u00a74, \u00a76, \u00a78, \u00a720",
+  "about": "A code law accepts all six proof tools or a test command. Proof tools and targets are part of the canonical form. Unknown tools and watched code laws are refused.",
+  "laws": "laws \"conformance\" version 1\n\nlaw kani\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by kani \"checks::invariant\" in \"ril-core\"\n\nlaw verus\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by verus \"verified.rs\"\n\nlaw lean\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by lean \"Proof.lean\"\n\nlaw cedar-analysis\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by cedar-analysis \"policy.cedar\"\n\nlaw quint\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by quint \"model.qnt\"\n\nlaw bend\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by bend \"LAWS.bend\"\n\nlaw command\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence tested by command \"make laws\"\n",
+  "digest": "e9f65fdbca7b5e534eb3a2a4efc7e148d748b5d7caf188db72408a97145ecd08",
+  "same_law_set": [
+    "laws \"conformance\" version 1\n\nlaw command\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence tested by command \"make laws\"\n\nlaw bend\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by bend \"LAWS.bend\"\n\nlaw quint\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by quint \"model.qnt\"\n\nlaw cedar-analysis\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by cedar-analysis \"policy.cedar\"\n\nlaw lean\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by lean \"Proof.lean\"\n\nlaw verus\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by verus \"verified.rs\"\n\nlaw kani\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by kani \"checks::invariant\" in \"ril-core\"\n"
+  ],
+  "other_law_sets": [
+    "laws \"conformance\" version 1\n\nlaw kani\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by kani \"checks::invariant\" in \"ril-core\"\n\nlaw verus\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by verus \"verified.rs\"\n\nlaw lean\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by lean \"Proof.lean\"\n\nlaw cedar-analysis\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by cedar-analysis \"policy.cedar\"\n\nlaw quint\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by bend \"model.qnt\"\n\nlaw bend\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by bend \"LAWS.bend\"\n\nlaw command\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence tested by command \"make laws\"\n",
+    "laws \"conformance\" version 1\n\nlaw kani\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by kani \"checks::invariant\" in \"ril-core\"\n\nlaw verus\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by verus \"verified.rs\"\n\nlaw lean\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by lean \"Proof.lean\"\n\nlaw cedar-analysis\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by cedar-analysis \"policy.cedar\"\n\nlaw quint\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by quint \"other.qnt\"\n\nlaw bend\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by bend \"LAWS.bend\"\n\nlaw command\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence tested by command \"make laws\"\n"
+  ],
+  "decisions": [
+    {
+      "request": {
+        "principal": {
+          "entity_type": "User",
+          "id": "alice"
+        },
+        "action": "approve",
+        "resource": {
+          "entity_type": "LawWeakening",
+          "id": "change"
+        },
+        "context": {},
+        "entities": []
+      },
+      "verdict": "deny",
+      "laws": [],
+      "errors": []
+    }
+  ],
+  "refused": [
+    "laws \"conformance\" version 1\n\nlaw fake\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence proved by fake \"x\"\n",
+    "laws \"conformance\" version 1\n\nlaw watch\n  says \"The invariant holds.\"\n  why \"Conformance.\"\n  on code \"src/**\"\n  evidence watched\n"
+  ]
+}

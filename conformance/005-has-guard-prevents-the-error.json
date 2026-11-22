@@ -1,0 +1,8 @@
+{
+  "spec": "§5.1, §5.3",
+  "about": "A has guard short-circuits, so a condition on a missing attribute neither errors nor applies.",
+  "laws": "laws \"conformance\" version 1\n\nlaw reads\n  says  \"reads\"\n  why   \"Conformance.\"\n  on    action read of Doc\n  permit\n  evidence watched\n\nlaw guard\n  says  \"guard\"\n  why   \"Conformance.\"\n  on    action read of Doc\n  forbid when resource has missing && resource.missing == 1\n  evidence watched\n",
+  "decisions": [
+    { "request": {"principal":{"entity_type":"User","id":"alice"},"action":"read","resource":{"entity_type":"Doc","id":"w1"},"context":{},"entities":[]}, "verdict": "allow", "laws": ["reads"], "errors": [] }
+  ]
+}

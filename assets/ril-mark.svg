@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="40 90 410 365" width="64" height="57" fill="none" role="img" aria-label="Retvest RIL mark">
+  <defs>
+    <linearGradient id="retvest-ril-mark" x1="60" y1="120" x2="440" y2="440" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#9ab8ff"/>
+      <stop offset="40%" stop-color="#a98bff"/>
+      <stop offset="75%" stop-color="#ff7ab8"/>
+      <stop offset="100%" stop-color="#ffc871"/>
+    </linearGradient>
+  </defs>
+  <g fill="url(#retvest-ril-mark)">
+    <path d="M145 105 L305 105 C395 105 438 155 438 224 C438 283 405 327 349 342 L430 442 L352 442 L282 350 C262 322 270 289 300 276 C334 260 357 244 357 211 C357 178 332 161 293 161 L119 161 Z"/>
+    <path d="M173 250 L284 250 L205 330 L292 442 L202 442 L118 331 Z"/>
+    <rect x="56" y="202" width="97" height="10" rx="5"/>
+    <circle cx="66" cy="207" r="16"/>
+  </g>
+</svg>

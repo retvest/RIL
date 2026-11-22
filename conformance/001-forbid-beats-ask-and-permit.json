@@ -1,0 +1,8 @@
+{
+  "spec": "§5.2",
+  "about": "A forbid that applies denies, whatever asks and permits also apply; the answer names only the forbidding laws.",
+  "laws": "laws \"conformance\" version 1\n\nlaw reads\n  says  \"reads\"\n  why   \"Conformance.\"\n  on    action read of Doc\n  permit\n  evidence watched\n\nlaw review\n  says  \"review\"\n  why   \"Conformance.\"\n  on    action read of Doc\n  ask\n  evidence watched\n\nlaw guard\n  says  \"guard\"\n  why   \"Conformance.\"\n  on    action read of Doc\n  forbid when resource.owner != principal\n  evidence watched\n",
+  "decisions": [
+    { "request": {"principal":{"entity_type":"User","id":"alice"},"action":"read","resource":{"entity_type":"Doc","id":"w1"},"context":{},"entities":[[{"entity_type":"Doc","id":"w1"},{"attributes":{"owner":{"entity":{"entity_type":"User","id":"bob"}}},"parents":[]}],[{"entity_type":"User","id":"alice"},{"attributes":{},"parents":[{"entity_type":"Group","id":"admins"}]}]]}, "verdict": "deny", "laws": ["guard"], "errors": [] }
+  ]
+}

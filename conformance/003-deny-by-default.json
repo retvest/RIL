@@ -1,0 +1,9 @@
+{
+  "spec": "§5.2",
+  "about": "When no permit applies the answer is deny and names no law; laws on another action or entity type are not evaluated.",
+  "laws": "laws \"conformance\" version 1\n\nlaw writes\n  says  \"writes\"\n  why   \"Conformance.\"\n  on    action write of Doc\n  permit\n  evidence watched\n\nlaw other-type\n  says  \"other-type\"\n  why   \"Conformance.\"\n  on    action read of Folder\n  permit\n  evidence watched\n\nlaw admins-only\n  says  \"admins-only\"\n  why   \"Conformance.\"\n  on    action read of Doc\n  permit when principal in Group::\"admins\"\n  evidence watched\n",
+  "decisions": [
+    { "request": {"principal":{"entity_type":"User","id":"alice"},"action":"read","resource":{"entity_type":"Doc","id":"w1"},"context":{},"entities":[]}, "verdict": "deny", "laws": [], "errors": [] },
+    { "request": {"principal":{"entity_type":"User","id":"alice"},"action":"read","resource":{"entity_type":"Doc","id":"w1"},"context":{},"entities":[[{"entity_type":"Doc","id":"w1"},{"attributes":{"owner":{"entity":{"entity_type":"User","id":"bob"}}},"parents":[]}],[{"entity_type":"User","id":"alice"},{"attributes":{},"parents":[{"entity_type":"Group","id":"admins"}]}]]}, "verdict": "allow", "laws": ["admins-only"], "errors": [] }
+  ]
+}

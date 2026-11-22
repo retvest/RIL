@@ -1,0 +1,19 @@
+{
+  "spec": "§4, §5.1",
+  "about": "Each of these files is refused as a whole: a file that does not parse, or whose conditions leave the allowed language, decides nothing.",
+  "refused": [
+    "",
+    "laws \"x\" version 1\n",
+    "laws \"x\" version 1\nlaw a\n",
+    "laws \"x\"\nlaw a\n  says  \"s\"\n  why   \"w\"\n  on    action read of Doc\n  permit\n  evidence watched\n",
+    "laws \"x\" version 1\nlaw a\n  says  \"s\"\n  why   \"w\"\n  on    action read of Doc\n  evidence watched\n",
+    "laws \"x\" version 1\nlaw a\n  says  \"s\"\n  why   \"w\"\n  on    code \"src/*.rs\"\n  forbid\n  evidence watched\n",
+    "laws \"x\" version 1\nlaw a\n  says  \"s\"\n  why   \"w\"\n  on    action read of Doc\n  permit\n  evidence watched\nlaw a\n  says  \"s\"\n  why   \"w\"\n  on    action read of Doc\n  permit\n  evidence watched\n",
+    "laws \"x\" version 1\nlaw Bad-Id\n  says  \"s\"\n  why   \"w\"\n  on    action read of Doc\n  permit\n  evidence watched\n",
+    "laws \"x\" version 1\nlaw a\n  says  \"s\"\n  why   \"w\"\n  on    action read of Doc\n  permit\n  evidence proved by coq \"x\"\n",
+    "laws \"x\" version 1\nlaw a\n  says  \"s\"\n  why   \"w\"\n  on    action read of Doc\n  permit when context.a ==\n  evidence watched\n",
+    "laws \"x\" version 1\nlaw a\n  says  \"s\"\n  why   \"w\"\n  on    action read of Doc\n  permit when context.a.isEmpty()\n  evidence watched\n",
+    "laws \"x\" version 1\nlaw a\n  says  \"s\"\n  why   \"w\"\n  on    action read of Doc\n  permit when unknown == 1\n  evidence watched\n",
+    "laws \"x\" version 1\nlaw a\n  says  \"s\"\n  why   \"w\"\n  on    action read of Doc\n  permit when \"unclosed\n  evidence watched\n"
+  ]
+}
