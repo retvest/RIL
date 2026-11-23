@@ -1,0 +1,22 @@
+laws "TypeScript App Laws" version 1
+
+law production-write-needs-approval
+  says "AI agents must ask before mutating production billing or user tables."
+  why  "Production mutations require human accountability."
+  on   action mutate of ProductionTable
+  ask  when context.environment == "production"
+  evidence watched
+
+law forbid-secret-reads
+  says "AI agents never read .env files or private API key configs."
+  why  "Prevent credential leaks into prompts or third-party telemetry."
+  on   action read of File
+  forbid when context.path like "*.env*"
+  permit when context.workspace == "local"
+  evidence watched
+
+law api-routes-tested
+  says "API route handlers pass TypeScript typecheck and unit tests."
+  why  "Catch contract and auth regressions before merge."
+  on   code "src/app/api/**", "src/lib/auth/**"
+  evidence tested by command "npm test"

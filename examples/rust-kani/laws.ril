@@ -1,0 +1,21 @@
+laws "Rust Service Laws" version 1
+
+law private-work-is-private
+  says "An admin never reads another user's Private Work."
+  why  "Private Work is personal, even inside an organisation account."
+  on   action read of PrivateWork
+  forbid when resource.owner != principal
+  permit when resource.owner == principal
+  evidence proved by kani "auth::private_work_read_holds" in "crates/core"
+
+law auth-invariants-proved
+  says "Authorization decisions fail closed on missing or invalid claims."
+  why  "Security boundaries must be mathematically verified, not guessed."
+  on   code "src/auth/**"
+  evidence proved by kani "auth::fail_closed_verdict" in "."
+
+law unit-suite-guards-core
+  says "Core domain logic passes the full Rust test suite before merge."
+  why  "Prevent regressions across state transitions and parsers."
+  on   code "src/**"
+  evidence tested by command "cargo test --locked"

@@ -1,0 +1,22 @@
+laws "Python Backend Laws" version 1
+
+law tenant-isolation
+  says "Never read or export another tenant's customer records."
+  why  "Strict tenant isolation prevents cross-customer data leaks."
+  on   action read of CustomerRecord
+  forbid when resource.tenant_id != principal.tenant_id
+  permit when resource.tenant_id == principal.tenant_id
+  evidence tested by command "pytest tests/test_tenant_isolation.py"
+
+law export-needs-approval
+  says "Sending customer data outside the service requires human approval."
+  why  "External exports are not reversible."
+  on   action export of CustomerRecord
+  ask  when context.destination.external
+  evidence watched
+
+law auth-covered-by-pytest
+  says "Authentication and permission code is covered by automated pytest checks."
+  why  "Every auth edit must pass deterministic regression checks."
+  on   code "app/auth/**", "app/permissions/**"
+  evidence tested by command "pytest tests/test_auth.py"

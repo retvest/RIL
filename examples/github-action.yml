@@ -1,0 +1,31 @@
+name: RIL Laws Gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  ril-laws:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install RIL Laws v0.2.1 (SHA-256 verified)
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/retvest/ril-laws/main/install.sh | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Verify laws.ril syntax and canonical digest
+        run: ril laws check laws.ril
+
+      - name: Block AI or PRs from removing or weakening laws
+        if: github.event_name == 'pull_request'
+        run: |
+          git show "origin/${{ github.base_ref }}:laws.ril" > /tmp/base-laws.ril
+          ril laws diff /tmp/base-laws.ril laws.ril
+
+      - name: Enforce code-law coverage on critical paths
+        run: ril laws coverage laws.ril --root . --require-covered "src/auth/**"
