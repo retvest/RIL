@@ -1,5 +1,5 @@
 #!/bin/sh
-# Zero-database Claude Code PreToolUse hook powered by RIL Laws v0.2.1.
+# Zero-database Claude Code PreToolUse hook powered by RIL v0.2.1.
 # Wire in .claude/settings.json under hooks.PreToolUse -> command: "./examples/claude-code-mcp/pre-tool-use.sh"
 set -eu
 
@@ -31,11 +31,11 @@ case "$CODE" in
     exit 0
     ;;
   2)
-    printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"ask","permissionDecisionReason":"RIL Laws: %s"}}\n' "$OUT"
+    printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"ask","permissionDecisionReason":"RIL: %s"}}\n' "$OUT"
     exit 0
     ;;
   *)
-    printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"RIL Laws blocked action: %s"}}\n' "$OUT"
+    printf '{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"deny","permissionDecisionReason":"RIL blocked action: %s"}}\n' "$OUT"
     exit 0
     ;;
 esac

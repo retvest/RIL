@@ -1,4 +1,4 @@
-name: RIL Laws Gate
+name: RIL Gate
 
 on:
   pull_request:
@@ -13,9 +13,9 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install RIL Laws v0.2.1 (SHA-256 verified)
+      - name: Install RIL v0.2.1 (SHA-256 verified)
         run: |
-          curl -fsSL https://raw.githubusercontent.com/retvest/ril-laws/main/install.sh | sh
+          curl -fsSL https://raw.githubusercontent.com/retvest/ril/main/install.sh | sh
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Verify laws.ril syntax and canonical digest

@@ -3,7 +3,7 @@ set -eu
 
 VERSION="${RIL_VERSION:-0.2.1}"
 INSTALL_DIR="${RIL_INSTALL_DIR:-$HOME/.local/bin}"
-REPO="retvest/ril-laws"
+REPO="retvest/ril"
 
 OS=$(uname -s)
 ARCH=$(uname -m)
@@ -30,7 +30,7 @@ BASE_URL="https://github.com/${REPO}/releases/download/v${VERSION}"
 TMPDIR_INSTALL=$(mktemp -d)
 trap 'rm -rf "$TMPDIR_INSTALL"' EXIT INT TERM
 
-echo "Downloading RIL Laws v${VERSION} (${TARGET})..."
+echo "Downloading RIL v${VERSION} (${TARGET})..."
 curl -fsSL "${BASE_URL}/${ARCHIVE}" -o "${TMPDIR_INSTALL}/${ARCHIVE}"
 curl -fsSL "${BASE_URL}/SHA256SUMS.txt" -o "${TMPDIR_INSTALL}/SHA256SUMS.txt"
 

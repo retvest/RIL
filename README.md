@@ -1,12 +1,13 @@
 <p align="center">
-  <img src="assets/ril-logo.svg" alt="Retvest RIL Laws v0.2" width="360" />
+  <img src="assets/ril-logo.svg" alt="Retvest RIL v0.2" width="360" />
 </p>
 
 <p align="center">
-  <a href="https://github.com/retvest/ril-laws/releases/tag/v0.2.1"><img src="https://img.shields.io/badge/release-v0.2.1-79dba8?style=flat-square&labelColor=0b0c0e" alt="Release v0.2.1" /></a>
-  <a href="LAWS-SPEC.md"><img src="https://img.shields.io/badge/spec-Apache--2.0-9ab8ff?style=flat-square&labelColor=0b0c0e" alt="Spec Apache-2.0" /></a>
+  <a href="https://github.com/retvest/ril/releases/tag/v0.2.1"><img src="https://img.shields.io/badge/release-v0.2.1-79dba8?style=flat-square&labelColor=0b0c0e" alt="Release v0.2.1" /></a>
+  <a href="BINARY-LICENSE.txt"><img src="https://img.shields.io/badge/engine-Proprietary_Free_Binary-9ab8ff?style=flat-square&labelColor=0b0c0e" alt="Proprietary Free Binary" /></a>
+  <a href="LAWS-SPEC.md"><img src="https://img.shields.io/badge/spec_%26_tooling-Apache--2.0-a98bff?style=flat-square&labelColor=0b0c0e" alt="Spec Apache-2.0" /></a>
   <a href="conformance/"><img src="https://img.shields.io/badge/conformance-10%2F10_cases-a98bff?style=flat-square&labelColor=0b0c0e" alt="Conformance 10/10" /></a>
-  <a href="https://github.com/retvest/ril-laws/releases/tag/v0.2.1"><img src="https://img.shields.io/badge/platforms-macOS_%7C_Linux_%7C_Windows-ffc871?style=flat-square&labelColor=0b0c0e" alt="macOS, Linux, Windows" /></a>
+  <a href="https://github.com/retvest/ril/releases/tag/v0.2.1"><img src="https://img.shields.io/badge/platforms-macOS_%7C_Linux_%7C_Windows-ffc871?style=flat-square&labelColor=0b0c0e" alt="macOS, Linux, Windows" /></a>
   <a href="https://retvest.com/products/ril/"><img src="https://img.shields.io/badge/playground-retvest.com-ff7ab8?style=flat-square&labelColor=0b0c0e" alt="Live Playground" /></a>
 </p>
 
@@ -14,10 +15,10 @@
 
 Prompts and `AGENTS.md` files are suggestions. When an AI coding agent is 20 tool calls deep, it ignores them, runs destructive commands, or quietly weakens a test to make its own pull request pass.
 
-**RIL Laws (`laws.ril`)** turns your invariants into hard, machine-checked laws enforced both at runtime and at merge time. Before an AI acts, RIL evaluates action laws inline in **6.6 ms** with zero database required: `forbid` beats `ask`, `ask` beats `permit`, unmatched actions deny by default, evaluation errors fail closed, and exit codes (`0` allow, `2` ask, `3` deny) plug straight into Claude Code, Cursor, Codex, or MCP hooks. Before an AI merges code, `ril laws diff` blocks any pull request that removes or weakens a law, and `ril laws coverage` enforces code-law coverage across critical directories.
+**RIL (`laws.ril`)** turns your invariants into hard, machine-checked laws enforced both at runtime and at merge time. Before an AI acts, RIL evaluates action laws inline in **6.6 ms** with zero database required: `forbid` beats `ask`, `ask` beats `permit`, unmatched actions deny by default, evaluation errors fail closed, and exit codes (`0` allow, `2` ask, `3` deny) plug straight into Claude Code, Cursor, Codex, or MCP hooks. Before an AI merges code, `ril laws diff` blocks any pull request that removes or weakens a law, and `ril laws coverage` enforces code-law coverage across critical directories.
 
 <p align="center">
-  <img src="assets/ril-demo.svg" alt="RIL Laws v0.2.1 terminal demo: init, eval blocking rm -rf, hold on curl, diff blocking law weakening, and coverage check" width="880" />
+  <img src="assets/ril-demo.svg" alt="RIL v0.2.1 terminal demo: init, eval blocking rm -rf, hold on curl, diff blocking law weakening, and coverage check" width="880" />
 </p>
 
 Across Retvest's own Rust, Kotlin Multiplatform, and TypeScript repositories, **46 live `laws.ril` laws** (including 10 sub-second Kani CBMC proofs and 20,000-trace Quint models) caught **3 real production bugs on day one**: stale claim recovery overwrites, unclaimed completion mismatches, and a walkthrough dwell-state leak. Try the interactive browser evaluator live at **[retvest.com/products/ril](https://retvest.com/products/ril/)**.
@@ -28,12 +29,12 @@ Install the single zero-dependency `ril` binary (`v0.2.1`, SHA-256 verified):
 
 ```sh
 # macOS & Linux
-curl -fsSL https://raw.githubusercontent.com/retvest/ril-laws/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/retvest/ril/main/install.sh | sh
 ```
 
 ```powershell
 # Windows (PowerShell)
-irm https://raw.githubusercontent.com/retvest/ril-laws/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/retvest/ril/main/install.ps1 | iex
 ```
 
 Generate a starter `laws.ril`, verify its RFC 8785 canonical SHA-256 digest, evaluate live AI actions offline, and test the PR weakening gate:
@@ -104,9 +105,9 @@ law settlement-kernel-proof
   evidence proved by bend "kernels/LAWS.bend"
 ```
 
-## Why RIL Laws?
+## Why RIL?
 
-| Capability | `AGENTS.md` / Prompts | Traditional Policy Engines | Bend (`LAWS.bend`) | **RIL Laws (`laws.ril`)** |
+| Capability | `AGENTS.md` / Prompts | Traditional Policy Engines | Bend (`LAWS.bend`) | **RIL (`laws.ril`)** |
 |---|---|---|---|---|
 | **Works on Rust, Kotlin, TS, Python, Go, SQL** | Yes (unenforced) | Partial | No (Bend-only rewrite) | **Yes — any language** |
 | **Mathematical proofs (`proved`)** | No | No | Yes (`<1s` in Bend) | **Yes (`kani` in `0.02s`, `quint`, `verus`, `lean`, `bend`)** |
@@ -136,7 +137,7 @@ Drop [editors/ril-laws.tmLanguage.json](editors/ril-laws.tmLanguage.json) into V
 
 | Path | Purpose |
 |---|---|
-| [LAWS-SPEC.md](LAWS-SPEC.md) | Complete 20-page RIL Laws 0.2 specification (grammar, total fail-closed semantics, RFC 8785 canonical form, merge gate). |
+| [LAWS-SPEC.md](LAWS-SPEC.md) | Complete 20-page RIL 0.2 specification (grammar, total fail-closed semantics, RFC 8785 canonical form, merge gate). |
 | [conformance/](conformance/) | Public 10-case JSON conformance suite (`001`–`010`) defining exact implementation compatibility. |
 | [examples/](examples/) | Verified starter `laws.ril` packs for Claude Code, Rust + Kani, Python, TypeScript, and GitHub Actions. |
 | [editors/](editors/) | TextMate syntax grammar (`source.ril`) and VS Code language package. |
@@ -144,9 +145,9 @@ Drop [editors/ril-laws.tmLanguage.json](editors/ril-laws.tmLanguage.json) into V
 | [install.sh](install.sh) / [install.ps1](install.ps1) | SHA-256-verified one-line installers for macOS, Linux, and Windows. |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Guide for contributing starter law packs, conformance vectors, editor plugins, and compatible checkers. |
 
-## Open Specification + Free Binary
+## Licensing Model (Proprietary Engine + Open Language Specification)
 
-The specification, conformance suite, starter examples, syntax grammar, and SVG assets are licensed under **Apache License 2.0** ([LICENSE](LICENSE), [NOTICE](NOTICE)). Anyone can read the specification, build a compatible checker, and validate it against `conformance/`. The prebuilt `ril` executables for macOS, Linux, and Windows are distributed free to download, run, and verify under [BINARY-LICENSE.txt](BINARY-LICENSE.txt), while the underlying RIL Rust engine source code remains proprietary and closed source.
+Like Oracle PL/SQL and NVIDIA CUDA, **RIL** separates the closed-source execution engine from the open language specification and developer tooling. The `ril` compiler, evaluator, and runtime engine are proprietary, closed-source software owned by Retvest, and the prebuilt executables for macOS, Linux, and Windows are distributed free to download, verify, and run under the **Retvest Free Binary License** ([BINARY-LICENSE.txt](BINARY-LICENSE.txt)). The public language specification ([LAWS-SPEC.md](LAWS-SPEC.md)), 10-case JSON conformance suite ([conformance/](conformance/)), starter rule packs ([examples/](examples/)), and editor syntax grammars ([editors/](editors/)) are licensed under **Apache License 2.0** ([LICENSE](LICENSE), [NOTICE](NOTICE)) so any developer, IDE, or enterprise can write `*.ril` files and build editor integrations with zero legal friction.
 
 <p align="center">
   Built by <a href="https://retvest.com/products/ril/"><strong>Retvest</strong></a>. Star the repository and add a <code>laws.ril</code> to your next AI-assisted codebase.

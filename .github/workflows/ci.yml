@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install RIL Laws v0.2.1 (SHA-256 verified)
+      - name: Install RIL v0.2.1 (SHA-256 verified)
         run: |
           sh ./install.sh
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
