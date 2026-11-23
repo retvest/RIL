@@ -1,6 +1,6 @@
-# Contributing to RIL Laws
+# Contributing to RIL
 
-RIL Laws follows the **Open Specification + Free Binary** model. Every file in this repository—`LAWS-SPEC.md`, the 10-case `conformance/` suite, starter `examples/`, editor syntax grammars, and installers—is Apache-2.0 and welcomes community pull requests.
+RIL follows the **Open Specification + Free Binary** model. Every file in this repository—`LAWS-SPEC.md`, the 10-case `conformance/` suite, starter `examples/`, editor syntax grammars, and installers—is Apache-2.0 and welcomes community pull requests.
 
 ## High-Impact Contributions
 

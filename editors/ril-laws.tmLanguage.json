@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
-  "name": "RIL Laws",
+  "name": "RIL",
   "scopeName": "source.ril",
   "fileTypes": ["ril"],
   "patterns": [

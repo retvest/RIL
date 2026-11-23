@@ -1,4 +1,4 @@
-# RIL Laws — draft specification 0.1
+# RIL — draft specification 0.1
 
 Draft 0.1, 18 November 2026, with normative owner decisions through 22 November 2026 (§13, §15 to §20). Built in `ril-core` (`src/laws/`): the parser and structural checks, the canonical form and digest, the reference evaluator, the Cedar compiler, live request mapping, entity reads and the merge gate record. The conformance suite (§9.6) is in `conformance/`. It follows the owner's
 decision of 18 November (MASTER-PLAN.md lane 26): RIL gets a small **rules language** for what AI may
@@ -11,16 +11,16 @@ A company writes its **laws** once, in short plain files. Every AI must obey the
 when it **takes an action** (RIL checks the law at the tool-call boundary, as it already does with
 Cedar) and when it **writes code** (the merge gate runs the law's checker and refuses the change if
 it fails). Every check, at runtime or at merge, becomes one entry in RIL's provable record, naming
-the exact law version that decided. Bend does this only for programs written in Bend; RIL Laws
+the exact law version that decided. Bend does this only for programs written in Bend; RIL
 does it for any language and for actions, not just code.
 
 ## 2. Why a language now, and why this does not repeat the old RIL
 
 DESIGN.md said "not a new language for humans", and LESSONS.md rule 4 says "never invent a language
 when an API will do". Both still hold for what the old RIL built: a workflow language people had to
-write programs in. RIL Laws is different in four checkable ways:
+write programs in. RIL is different in four checkable ways:
 
-| Old RIL language | RIL Laws |
+| Old RIL language | RIL |
 |---|---|
 | Programs: workflows, data, generation steps | Decisions only: a law can say allow, ask or forbid; it cannot do anything |
 | Loops, data access, its own SQL clone | No loops, no I/O, no user-defined functions; every law finishes and gives one answer |
@@ -205,7 +205,7 @@ coverage. Absence of a record is never shown as "nothing happened".
    (Lean), as Cedar's were. Until then they are `tested`, and labelled as such.
 5. **Simulation tests** for the gate and record: crashes, retries, concurrent merges, clock skew.
 6. **Conformance suite**: a public folder of law sets, requests and expected answers. Any
-   implementation that claims to be RIL Laws must pass all of it.
+   implementation that claims to be RIL must pass all of it.
 
 ## 10. Budget and guardrails (from LESSONS.md)
 
@@ -242,7 +242,7 @@ coverage. Absence of a record is never shown as "nothing happened".
 
 1. **Syntax**: our own `laws.ril` syntax as in §4, with a JSON export for other tools.
 2. **Weakening a law** (§7) needs the owner's approval only. No one else can approve it.
-3. **Name**: the language is **RIL Laws**; RIL remains the product.
+3. **Name**: the language is **RIL**; RIL remains the product.
 4. **Open source**: publish the specification, reference checker and conformance suite at 0.2,
    after 20–30 real laws (§12 step 6).
 
@@ -406,7 +406,7 @@ Behaviour changes to know: Cedar policy files that used `context.agent_type` mus
 
 ## 20. Owner decisions, 22 November 2026
 
-1. **Proof tools (`quint` and `bend`):** RIL Laws 0.2 accepts `quint` and `bend` in `evidence proved by` (§4 and §6). The tool and
+1. **Proof tools (`quint` and `bend`):** RIL 0.2 accepts `quint` and `bend` in `evidence proved by` (§4 and §6). The tool and
    target are part of the canonical law set (§8). A Quint check records the model and the sample
    and step bounds. A sampled run establishes the property for the traces it checked. A Bend
    check runs `bend check` on `LAWS.bend`.

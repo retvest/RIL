@@ -2,7 +2,7 @@ $ErrorActionPreference = "Stop"
 
 $Version = if ($env:RIL_VERSION) { $env:RIL_VERSION } else { "0.2.1" }
 $InstallDir = if ($env:RIL_INSTALL_DIR) { $env:RIL_INSTALL_DIR } else { Join-Path $HOME ".local\bin" }
-$Repo = "retvest/ril-laws"
+$Repo = "retvest/ril"
 $Archive = "ril-$Version-x86_64-pc-windows-gnu.zip"
 $BaseUrl = "https://github.com/$Repo/releases/download/v$Version"
 
@@ -13,7 +13,7 @@ try {
     $ArchivePath = Join-Path $TempDir $Archive
     $SumsPath = Join-Path $TempDir "SHA256SUMS.txt"
 
-    Write-Host "Downloading RIL Laws v$Version (Windows x86_64)..."
+    Write-Host "Downloading RIL v$Version (Windows x86_64)..."
     Invoke-WebRequest -Uri "$BaseUrl/$Archive" -OutFile $ArchivePath
     Invoke-WebRequest -Uri "$BaseUrl/SHA256SUMS.txt" -OutFile $SumsPath
 

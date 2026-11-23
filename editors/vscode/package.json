@@ -1,7 +1,7 @@
 {
   "name": "ril-laws",
-  "displayName": "RIL Laws",
-  "description": "Syntax highlighting and midnight color theme tokens for RIL Laws (laws.ril) files.",
+  "displayName": "RIL",
+  "description": "Syntax highlighting and midnight color theme tokens for RIL (laws.ril) files.",
   "version": "0.2.0",
   "publisher": "retvest",
   "license": "Apache-2.0",
@@ -13,7 +13,7 @@
     "languages": [
       {
         "id": "ril",
-        "aliases": ["RIL Laws", "ril"],
+        "aliases": ["RIL", "ril"],
         "extensions": [".ril"],
         "filenames": ["laws.ril"]
       }

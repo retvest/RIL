@@ -1,6 +1,6 @@
-# RIL Laws conformance suite
+# RIL conformance suite
 
-This folder defines what it means to implement RIL Laws (docs/LAWS-SPEC.md §9.6). An
+This folder defines what it means to implement RIL (docs/LAWS-SPEC.md §9.6). An
 implementation is compatible with LAWS-SPEC 0.1 when it gives every answer here. `ril-core` runs the
 whole suite through both of its evaluators (the reference evaluator and the compiled Cedar path) in
 `ril-core/tests/conformance.rs`:
