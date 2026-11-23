@@ -1,0 +1,44 @@
+laws "AI Agent Guardrails" version 1
+
+law no-destructive-shell
+  says "Never run destructive deletes, force pushes, or database drops."
+  why  "Irreversible commands wipe developer work and production state."
+  on   action exec of ShellCommand
+  forbid when context.command like "*rm -rf*"
+  forbid when context.command like "*git push --force*"
+  forbid when context.command like "*git reset --hard*"
+  forbid when context.command like "*DROP TABLE*"
+  evidence watched
+
+law no-secret-exfiltration
+  says "Never read environment secret files or private SSH keys."
+  why  "Credentials must stay out of model context and logs."
+  on   action read of File
+  forbid when context.path like "*.env*"
+  forbid when context.path like "*.ssh/*"
+  forbid when context.path like "*id_rsa*"
+  forbid when context.path like "*credentials*"
+  evidence watched
+
+law external-network-asks
+  says "Outbound network commands and git pushes need human approval."
+  why  "External side effects should be reviewed before they leave the machine."
+  on   action exec of ShellCommand
+  ask  when context.command like "*curl *"
+  ask  when context.command like "*wget *"
+  ask  when context.command like "*git push*"
+  evidence watched
+
+law allow-local-dev-commands
+  says "Allow normal local build and test commands inside the workspace."
+  why  "Everyday development stays fast while dangerous actions remain blocked."
+  on   action exec of ShellCommand
+  permit when context.workspace == "local"
+  evidence watched
+
+law allow-workspace-reads
+  says "Allow reading non-secret project files."
+  why  "Agents need repository source context to propose edits."
+  on   action read of File
+  permit when context.workspace == "local"
+  evidence watched
