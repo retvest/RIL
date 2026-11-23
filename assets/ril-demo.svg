@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 880 430" width="880" height="430" role="img" aria-label="RIL Laws v0.2.1 terminal demo showing init, check, eval blocking rm -rf, and diff blocking law weakening">
+  <defs>
+    <linearGradient id="ril-top-bar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#9ab8ff"/>
+      <stop offset="35%" stop-color="#a98bff"/>
+      <stop offset="70%" stop-color="#ff7ab8"/>
+      <stop offset="100%" stop-color="#ffc871"/>
+    </linearGradient>
+    <style>
+      .bg { fill: #0b0c0e; }
+      .frame { fill: #111318; stroke: #252a36; stroke-width: 1.5; }
+      .bar { fill: #161922; }
+      .mono { font-family: ui-monospace, "SF Mono", Menlo, Monaco, Consolas, monospace; font-size: 13.5px; }
+      .title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 12.5px; font-weight: 600; fill: #9ba3b5; }
+      .prompt { fill: #a98bff; font-weight: 700; }
+      .cmd { fill: #eef2ff; }
+      .dim { fill: #8a93a6; }
+      .ok { fill: #79dba8; font-weight: 700; }
+      .ask { fill: #f2c46d; font-weight: 700; }
+      .deny { fill: #ff9e96; font-weight: 700; }
+      .blue { fill: #9ab8ff; }
+      .l1 { opacity: 0; animation: show 12s infinite; animation-delay: 0.2s; }
+      .l2 { opacity: 0; animation: show 12s infinite; animation-delay: 1.4s; }
+      .l3 { opacity: 0; animation: show 12s infinite; animation-delay: 3.0s; }
+      .l4 { opacity: 0; animation: show 12s infinite; animation-delay: 4.8s; }
+      .l5 { opacity: 0; animation: show 12s infinite; animation-delay: 6.8s; }
+      .l6 { opacity: 0; animation: show 12s infinite; animation-delay: 8.6s; }
+      @keyframes show {
+        0%, 3% { opacity: 0; }
+        6%, 94% { opacity: 1; }
+        100% { opacity: 0; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .l1, .l2, .l3, .l4, .l5, .l6 { opacity: 1; animation: none; }
+      }
+    </style>
+  </defs>
+
+  <rect class="bg" width="880" height="430" rx="16"/>
+  <rect class="frame" x="12" y="12" width="856" height="406" rx="14"/>
+  <rect class="bar" x="13" y="13" width="854" height="40" rx="13"/>
+  <rect fill="url(#ril-top-bar)" x="13" y="52" width="854" height="2"/>
+
+  <circle cx="36" cy="33" r="6" fill="#ff5f56"/>
+  <circle cx="56" cy="33" r="6" fill="#ffbd2e"/>
+  <circle cx="76" cy="33" r="6" fill="#27c93f"/>
+  <text class="title" x="440" y="37" text-anchor="middle">ril laws v0.2.1 — zero-database AI governance &amp; PR merge gate</text>
+
+  <g class="mono l1">
+    <text x="32" y="88"><tspan class="prompt">$</tspan> <tspan class="cmd">ril laws init --template claude-code</tspan></text>
+    <text x="32" y="110" class="ok">Wrote laws.ril <tspan class="dim">(sha256: 8f31c9e4...a01b · 2 ms)</tspan></text>
+  </g>
+
+  <g class="mono l2">
+    <text x="32" y="148"><tspan class="prompt">$</tspan> <tspan class="cmd">ril laws eval laws.ril --action exec --resource ShellCommand:bash \</tspan></text>
+    <text x="48" y="168" class="blue">--context '{"command":"rm -rf /","workspace":"local"}'</text>
+    <text x="32" y="190" class="deny">DENY [no-destructive-shell] <tspan class="dim">(exit 3 · fail-closed · forbid beats permit)</tspan></text>
+  </g>
+
+  <g class="mono l3">
+    <text x="32" y="226"><tspan class="prompt">$</tspan> <tspan class="cmd">ril laws eval laws.ril --action exec --resource ShellCommand:bash \</tspan></text>
+    <text x="48" y="246" class="blue">--context '{"command":"curl https://api.vendor.io","workspace":"local"}'</text>
+    <text x="32" y="268" class="ask">HOLD (ask) [external-network-asks] <tspan class="dim">(exit 2 · human approval required)</tspan></text>
+  </g>
+
+  <g class="mono l4">
+    <text x="32" y="304"><tspan class="prompt">$</tspan> <tspan class="cmd">ril laws diff origin/main/laws.ril pr-agent/laws.ril</tspan></text>
+    <text x="32" y="326" class="deny">WEAKENED no-destructive-shell: removed or altered Forbid rule</text>
+    <text x="32" y="346" class="deny">BLOCKED: one or more laws were removed or weakened (owner approval required).</text>
+  </g>
+
+  <g class="mono l5">
+    <text x="32" y="382"><tspan class="prompt">$</tspan> <tspan class="cmd">ril laws coverage laws.ril --root . --require-covered "src/auth/**"</tspan></text>
+    <text x="32" y="402" class="ok">14 files (14 proved, 0 uncovered) · 100% required coverage</text>
+  </g>
+</svg>
