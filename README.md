@@ -8,7 +8,7 @@ blocked. In CI, compare a pull request with its base policy to catch rules that
 have been removed or weakened.
 
 [Download v0.2.1](https://github.com/retvest/ril/releases/tag/v0.2.1) ·
-[Try RIL in your browser](https://retvest.com/#ril-playground) ·
+[Try RIL in your browser](https://retvest.com/developers/#ril-install) ·
 [Read the specification](LAWS-SPEC.md)
 
 ## A policy for file access
@@ -63,8 +63,8 @@ are covered by code laws tied to tests or proof harnesses.
 
 | Component | License |
 | --- | --- |
-| Native engine (`ril` and `ril.exe`) | Proprietary, closed source and free of charge under the [Retvest Free Binary License](BINARY-LICENSE.txt) |
-| [Language specification](LAWS-SPEC.md), [10-case conformance suite](conformance/), [starter packs](examples/), and [editor grammar](editors/) | [Apache License 2.0](LICENSE) |
+| Native engine (`ril` and `ril.exe`), including the reference evaluator and verifier | Proprietary, closed source and free of charge under the [Retvest Free Binary License](BINARY-LICENSE.txt) |
+| [Language specification](LAWS-SPEC.md), [10-case conformance suite](conformance/), [starter packs](examples/), [editor grammar](editors/), and installer scripts ([shell](install.sh) and [PowerShell](install.ps1)) | [Apache-2.0 (Part II of LICENSE)](LICENSE) |
 
 Retvest is an independent, non-commercial software project. See
 [CONTRIBUTING.md](CONTRIBUTING.md) to contribute a starter policy, conformance

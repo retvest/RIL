@@ -1,6 +1,15 @@
 # Contributing to RIL
 
-RIL follows the **Open Specification + Free Binary** model. Every file in this repository—`LAWS-SPEC.md`, the 10-case `conformance/` suite, starter `examples/`, editor syntax grammars, and installers—is Apache-2.0 and welcomes community pull requests.
+RIL follows the **Open Specification + Free Binary** model. The language
+specification (`LAWS-SPEC.md`), conformance suite (`conformance/`), starter
+policies (`examples/`), editor grammar (`editors/`), and installer scripts
+(`install.sh` and `install.ps1`) use Apache-2.0 under Part II of [LICENSE](LICENSE).
+Contributions to those materials are welcome.
+
+The prebuilt `ril` and `ril.exe` native engine binaries downloaded from GitHub
+Releases, including the reference evaluator and verifier, are proprietary,
+closed source, and free of charge under the
+[Retvest Free Binary License](BINARY-LICENSE.txt).
 
 ## High-Impact Contributions
 

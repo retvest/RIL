@@ -1,5 +1,11 @@
 RIL
-Copyright 2026 Retvest AI OÜ
+Copyright 2026 Retvest
 
-This product includes the RIL specification, its conformance suite and its reference
-evaluator, licensed under the Apache License, Version 2.0 (see LICENSE).
+The RIL language specification (LAWS-SPEC.md), conformance suite (conformance/),
+starter policies (examples/), editor grammar (editors/), and installer scripts
+(install.sh and install.ps1) are licensed under the Apache License, Version 2.0
+(see Part II of LICENSE).
+
+The native engine binaries (ril and ril.exe), including the reference evaluator
+and verifier, are proprietary and distributed free of charge under the Retvest
+Free Binary License (BINARY-LICENSE.txt).

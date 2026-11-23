@@ -2,21 +2,21 @@ Retvest Free Binary License (RIL v0.2)
 
 Copyright (c) 2026 Retvest. All rights reserved.
 
-The prebuilt `ril` executable binaries published alongside the RIL 0.2
+The prebuilt `ril` and `ril.exe` executable binaries published alongside the RIL 0.2
 specification on GitHub Releases are provided free of charge to download, run,
 evaluate `laws.ril` files, check code-law coverage, and independently verify
 RIL receipts and ledgers.
 
-The underlying RIL engine source code is proprietary to Retvest and is not
-distributed under an open-source licence. You may not reverse-engineer,
+The underlying RIL engine source code, including its reference evaluator and
+verifier, is proprietary to Retvest and remains closed source. You may not reverse-engineer,
 decompile, or redistribute modified versions of the prebuilt binary except as
 expressly permitted by applicable law.
 
 The RIL specification (`LAWS-SPEC.md`), conformance test vectors
 (`conformance/`), starter packs (`examples/`), syntax highlighting grammar
-(`editors/`), and SVG logo assets
-(`assets/`) in this repository are licensed separately under the Apache License,
-Version 2.0 (see `LICENSE`).
+(`editors/`), and installer scripts (`install.sh` and `install.ps1`) are
+licensed separately under the Apache License, Version 2.0 (see Part II of
+`LICENSE`).
 
 THE PREBUILT BINARY IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
 OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
