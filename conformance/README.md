@@ -1,13 +1,9 @@
 # RIL conformance suite
 
-This folder defines what it means to implement RIL (docs/LAWS-SPEC.md §9.6). An
-implementation is compatible with LAWS-SPEC 0.1 when it gives every answer here. `ril-core` runs the
-whole suite through both of its evaluators (the reference evaluator and the compiled Cedar path) in
-`ril-core/tests/conformance.rs`:
-
-```sh
-cd ril-core && cargo test --test conformance
-```
+These ten cases define expected behavior for implementations of
+[RIL](../LAWS-SPEC.md#9-reliability-how-this-is-made-trustworthy). The cases cover policy loading,
+canonical digests and action decisions, including failures. Compare an
+implementation’s answers with the expected values in every JSON file.
 
 ## Case files
 

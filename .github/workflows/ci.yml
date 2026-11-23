@@ -1,4 +1,4 @@
-name: Conformance & Starter Laws
+name: Release Smoke Tests
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   verify:
-    name: Verify conformance & starter laws
+    name: Verify starter laws and CLI decisions
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -25,21 +25,27 @@ jobs:
             ril laws check "$f"
           done
 
-      - name: Verify offline action evaluation & fail-closed precedence
+      - name: Verify offline action evaluation and fail-closed precedence
         run: |
-          set +e
-          ril laws eval examples/claude-code-mcp/laws.ril --action exec --resource ShellCommand:bash --context '{"command":"rm -rf /","workspace":"local"}'
-          test "$?" -eq 3
-          ril laws eval examples/claude-code-mcp/laws.ril --action exec --resource ShellCommand:bash --context '{"command":"curl https://example.com","workspace":"local"}'
-          test "$?" -eq 2
-          ril laws eval examples/claude-code-mcp/laws.ril --action exec --resource ShellCommand:bash --context '{"command":"cargo test","workspace":"local"}'
-          test "$?" -eq 0
-          set -e
+          expect_exit() {
+            local expected=$1 status=0
+            shift
+            "$@" || status=$?
+            if [ "$status" -ne "$expected" ]; then
+              printf 'Expected exit %s, got %s\n' "$expected" "$status" >&2
+              return 1
+            fi
+          }
+          expect_exit 3 ril laws eval examples/claude-code-mcp/laws.ril --action exec --resource ShellCommand:bash --context '{"command":"rm -rf /","workspace":"local"}'
+          expect_exit 2 ril laws eval examples/claude-code-mcp/laws.ril --action exec --resource ShellCommand:bash --context '{"command":"curl https://example.com","workspace":"local"}'
+          expect_exit 0 ril laws eval examples/claude-code-mcp/laws.ril --action exec --resource ShellCommand:bash --context '{"command":"cargo test","workspace":"local"}'
 
       - name: Verify PR law-weakening diff detector
         run: |
-          grep -v 'rm -rf' examples/claude-code-mcp/laws.ril > /tmp/weakened.ril
-          set +e
-          ril laws diff examples/claude-code-mcp/laws.ril /tmp/weakened.ril
-          test "$?" -eq 1
-          set -e
+          weakened=$(mktemp)
+          trap 'rm -f "$weakened"' EXIT
+          grep -v '^[[:space:]]*forbid.*rm -rf' examples/claude-code-mcp/laws.ril > "$weakened"
+          ril laws check "$weakened"
+          status=0
+          ril laws diff examples/claude-code-mcp/laws.ril "$weakened" || status=$?
+          test "$status" -eq 1

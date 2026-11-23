@@ -3,7 +3,7 @@
 Draft 0.1, 18 November 2026, with normative owner decisions through 22 November 2026 (§13, §15 to §20). Built in `ril-core` (`src/laws/`): the parser and structural checks, the canonical form and digest, the reference evaluator, the Cedar compiler, live request mapping, entity reads and the merge gate record. The conformance suite (§9.6) is in `conformance/`. It follows the owner's
 decision of 18 November (MASTER-PLAN.md lane 26): RIL gets a small **rules language** for what AI may
 do, aimed at an open industry standard, with Bend (bend-lang.com) as a reference for the idea that
-AI cannot ship what breaks a law. It extends [DESIGN.md](DESIGN.md) and obeys [LESSONS.md](LESSONS.md).
+AI cannot ship what breaks a law.
 
 ## 1. The idea in one paragraph
 
@@ -383,22 +383,10 @@ all six proposals on 19 November. They are normative for 0.2 and built.
 Behaviour changes to know: Cedar policy files that used `context.agent_type` must now use
 `context.agent.type` (§16 item 7); `ril serve` picks up a changed policy folder on SIGHUP (point 3).
 
-## 19. Decided (owner, 20 November 2026; ~/Retvest/docs/DECISIONS-2026-11-20.md decision 5)
+## 19. Owner decisions, 20 November 2026
 
-1. **Licence at 0.2: Apache-2.0.** When 0.2 ships, these parts are published under the
-   Apache License, Version 2.0, for its explicit patent grant (the licence of Cedar, Open Policy Agent and
-   OpenTelemetry):
-   - this specification, `docs/LAWS-SPEC.md`;
-   - the conformance suite, `conformance/` (cases, README and its runner
-     `ril-core/tests/conformance.rs`);
-   - the reference evaluator: `ril-core/src/laws.rs` and `ril-core/src/laws/` `action.rs`,
-     `condition.rs`, `eval.rs`, `expr.rs`, `lex.rs`, `parse.rs`, `print.rs`, with the canonical
-     JSON and SHA-256 helpers of `ril-core/src/digest.rs` they use.
-
-   The licence text and NOTICE to ship with them are prepared in `docs/laws-0.2/` (`LICENSE`,
-   `NOTICE`). Until 0.2 ships, and for everything else in this repository (the Cedar compiler, live
-   request mapping, ledger, service, adapters), the proprietary `LICENSE` at the repository root
-   applies. Nothing is published before 0.2.
+1. **Licence at 0.2.** The language specification and conformance suite use Apache-2.0.
+   The 22 November decision in §20 governs engine distribution.
 2. **Identity tokens: EdDSA only (decision 6).** RIL never accepts HS256 or any shared-secret
    algorithm, following RFC 8725 §3.1 (accept only the algorithms you expect, one per key) and
    RFC 8037; with HS256 every verifier could also forge tokens. The platform moves its sessions and
@@ -417,9 +405,8 @@ Behaviour changes to know: Cedar policy files that used `context.agent_type` mus
    The file also names the bounded Quint action lifecycle model and requires the owner role to
    approve weakening a law.
 
-2. **Open Specification + Free Binary (Closed-Source Engine).** When 0.2 ships, the specification
-   (`docs/LAWS-SPEC.md`), conformance suite (`conformance/`), and stripped, prebuilt `ril` binaries
-   may be openly distributed. Anyone can adopt the format, validate compatibility independently,
-   and run the binaries free of charge for `ril laws check`, `ril verify`, `ril verify-receipt`,
-   and local governance. All Rust engine source (`ril-core/src/**`), including the reference
-   evaluator listed in §19 item 1, remains private and proprietary.
+2. **Open specification and free engine.** The specification, conformance
+   suite, starter packs and editor grammar use [Apache-2.0](LICENSE). The
+   proprietary native engine, including its reference evaluator, stays closed
+   source. Prebuilt binaries are available free of charge under the
+   [Retvest Free Binary License](BINARY-LICENSE.txt).
