@@ -1,0 +1,45 @@
+name: Conformance & Starter Laws
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    name: Verify conformance & starter laws
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install RIL Laws v0.2.1 (SHA-256 verified)
+        run: |
+          sh ./install.sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Verify starter law packs
+        run: |
+          ril --version
+          for f in examples/*/laws.ril; do
+            echo "Checking $f..."
+            ril laws check "$f"
+          done
+
+      - name: Verify offline action evaluation & fail-closed precedence
+        run: |
+          set +e
+          ril laws eval examples/claude-code-mcp/laws.ril --action exec --resource ShellCommand:bash --context '{"command":"rm -rf /","workspace":"local"}'
+          test "$?" -eq 3
+          ril laws eval examples/claude-code-mcp/laws.ril --action exec --resource ShellCommand:bash --context '{"command":"curl https://example.com","workspace":"local"}'
+          test "$?" -eq 2
+          ril laws eval examples/claude-code-mcp/laws.ril --action exec --resource ShellCommand:bash --context '{"command":"cargo test","workspace":"local"}'
+          test "$?" -eq 0
+          set -e
+
+      - name: Verify PR law-weakening diff detector
+        run: |
+          grep -v 'rm -rf' examples/claude-code-mcp/laws.ril > /tmp/weakened.ril
+          set +e
+          ril laws diff examples/claude-code-mcp/laws.ril /tmp/weakened.ril
+          test "$?" -eq 1
+          set -e
