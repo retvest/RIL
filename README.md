@@ -7,9 +7,33 @@ to decide which actions can run, which wait for human approval, and which are
 blocked. In CI, compare a pull request with its base policy to catch rules that
 have been removed or weakened.
 
+[Try RIL in your browser](https://retvest.com/developers/#ril-playground) ·
 [Download v0.2.1](https://github.com/retvest/ril/releases/tag/v0.2.1) ·
-[Try RIL in your browser](https://retvest.com/developers/#ril-install) ·
 [Read the specification](LAWS-SPEC.md)
+
+## Remove one rule. Watch the PR check fail.
+
+This file-access policy denies a credentials read. The proposed version drops
+that deny rule. RIL flags the change before it can pass a required CI check.
+
+[![RIL playground showing allow, hold, deny, and a failed policy check](assets/ril-policy-demo.gif)](https://retvest.com/developers/#ril-playground)
+
+Open the [original policy](examples/file-access/laws.ril) and the
+[proposed policy](examples/file-access/weakened.ril). The only policy change
+is the removed `forbid` line. With the free v0.2.1 binary on your PATH, run
+this from the repository root.
+
+```sh
+ril laws diff examples/file-access/laws.ril examples/file-access/weakened.ril
+```
+
+```text
+WEAKENED protect-files: removed or altered Forbid rule
+BLOCKED: one or more laws were removed or weakened (owner approval required).
+```
+
+The command exits with code `1`. Make this comparison a required check in
+your repository to block a pull request when the check fails.
 
 ## A policy for file access
 
@@ -37,13 +61,13 @@ and verify it against [SHA256SUMS.txt][checksums]. Extract `ril` (or `ril.exe`
 on Windows) and put it on your PATH. The release supports macOS arm64, Linux
 x86_64 and arm64, and Windows x86_64.
 
-Save the policy above as `laws.ril`, then try these commands. The sample request
-returns `HOLD (ask)` with exit code `2`. An allowed action exits `0` and a
-denied action exits `3`.
+From the repository root, check the sample policy and try a shared file read.
+The request returns `HOLD (ask)` with exit code `2`. An allowed action exits
+`0` and a denied action exits `3`.
 
 ```sh
-ril laws check laws.ril
-ril laws eval laws.ril --action read --resource File:notes.md --principal Agent:demo --context '{"secret":false,"shared":true}'
+ril laws check examples/file-access/laws.ril
+ril laws eval examples/file-access/laws.ril --action read --resource File:shared/notes.md --principal Agent:demo --context '{"secret":false,"shared":true}'
 ```
 
 For an existing project, `ril laws init --template claude-code` generates a

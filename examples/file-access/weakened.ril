@@ -1,0 +1,9 @@
+laws "File access" version 1
+
+law protect-files
+  says "Protect sensitive files."
+  why "Limit unintended access."
+  on action read of File
+  ask when context.shared
+  permit
+  evidence watched
