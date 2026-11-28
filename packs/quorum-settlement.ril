@@ -1,0 +1,119 @@
+ril "Enterprise Pack: Quorum Settlement" version 3
+
+# A transfer is proposed, funds are reserved, two approvers sign off, and only then does it
+# commit and settle. A breach after commit freezes the transfer for good.
+
+machine quorum-settlement
+  states Proposed, Quorate, Committed, Settled, Breached
+  initial Proposed
+  terminal Settled, Breached
+  var approvals: int(0..3) = 0
+  var reserved: bool = false
+  var frozen: bool = false
+  transition reserve: Proposed -> Proposed when !reserved && !frozen set reserved = true
+  transition approve: Proposed -> Proposed when !frozen && approvals < 3 set approvals = approvals + 1
+  transition reach_quorum: Proposed -> Quorate when !frozen && approvals >= 2 && reserved
+  transition commit: Quorate -> Committed when !frozen
+  transition settle: Committed -> Settled when !frozen
+  transition breach: Committed -> Breached set frozen = true
+  invariant quorum-before-commit: (state == Committed || state == Settled) => approvals >= 2
+  invariant funds-reserved-before-commit: (state == Committed || state == Settled) => reserved
+  invariant no-settle-when-frozen: state == Settled => !frozen
+  invariant breach-freezes-the-transfer: state == Breached => frozen
+  eventually reaches-terminal: state == Settled || state == Breached
+
+promise settle-transfer
+  says "Every admitted transfer settles within 30s without double-spend."
+  why  "Financial actions must carry bounded, machine-checked obligations."
+  for  "settle_transfer"
+  requires "authorized", "funds_reserved", "quorum_reached"
+  ensures  "ledger_balanced", "receipt_recorded"
+  invariant "no_double_spend"
+  within 30s
+  on_breach freeze
+
+law transfer-rbac
+  says "Only an active treasurer may settle a transfer."
+  why  "Settlement moves money; it is limited to the treasury role and never to suspended accounts."
+  on action settle of Transfer
+  permit when principal.role == "treasurer"
+  forbid when principal.suspended == true
+  forbid when resource.requester == principal.name
+
+law transfer-amount-limits
+  says "Large transfers need a human; huge transfers are refused."
+  why  "Bounds the loss from a single settlement however many approvers agree."
+  on action settle of Transfer
+  permit when principal.role == "treasurer" && resource.amount <= 100000
+  ask    when resource.amount > 100000
+  forbid when resource.amount > 1000000
+
+proof forbid-wins-over-permit
+  proves "transfer-rbac"
+  for_all permit: bool, ask: bool
+  assert verdict(permit, ask, true) == deny
+
+proof ask-holds-a-permitted-action
+  proves "transfer-amount-limits"
+  for_all permit: bool
+  assert verdict(permit, true, false) == hold
+
+proof default-deny-when-no-rule-matches
+  proves "transfer-rbac"
+  assert verdict(false, false, false) == deny
+
+proof quorum-implies-a-second-approver
+  proves "settle-transfer"
+  for_all approvals: int(0..3)
+  assert (approvals >= 2) => (approvals >= 1)
+
+proof breach-freezes-even-a-permitted-transfer
+  proves "settle-transfer"
+  for_all permit: bool, ask: bool
+  assert promise_with_laws(false, true, true, true, freeze, permit, ask, false) == deny
+
+proof fulfilled-promise-with-no-forbid-allows
+  proves "settle-transfer"
+  assert promise(true, true, true, true, freeze) == allow
+
+test treasurer-settles-a-small-transfer
+  for "transfer-rbac"
+  principal User::"tess" { role: "treasurer", suspended: false, name: "tess" }
+  resource Transfer::"t-1" { requester: "sam", amount: 5000 }
+  expect allow
+
+test suspended-treasurer-is-denied
+  for "transfer-rbac"
+  principal User::"tess" { role: "treasurer", suspended: true, name: "tess" }
+  resource Transfer::"t-2" { requester: "sam", amount: 5000 }
+  expect deny
+
+test requester-cannot-settle-their-own-transfer
+  for "transfer-rbac"
+  principal User::"sam" { role: "treasurer", suspended: false, name: "sam" }
+  resource Transfer::"t-3" { requester: "sam", amount: 5000 }
+  expect deny
+
+test non-treasurer-is-denied-by-default
+  for "transfer-rbac"
+  principal User::"dev" { role: "engineer", suspended: false, name: "dev" }
+  resource Transfer::"t-4" { requester: "sam", amount: 5000 }
+  expect deny
+
+test amount-under-the-limit-is-allowed
+  for "transfer-amount-limits"
+  principal User::"tess" { role: "treasurer", suspended: false, name: "tess" }
+  resource Transfer::"t-5" { requester: "sam", amount: 100000 }
+  expect allow
+
+test amount-over-the-limit-holds-for-a-human
+  for "transfer-amount-limits"
+  principal User::"tess" { role: "treasurer", suspended: false, name: "tess" }
+  resource Transfer::"t-6" { requester: "sam", amount: 250000 }
+  expect hold
+
+test huge-amount-is-refused
+  for "transfer-amount-limits"
+  principal User::"tess" { role: "treasurer", suspended: false, name: "tess" }
+  resource Transfer::"t-7" { requester: "sam", amount: 2000000 }
+  expect deny

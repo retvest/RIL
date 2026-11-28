@@ -1,0 +1,58 @@
+ril "Retvest Payment Settlement" version 3
+
+machine settlement-flow
+  states Pending, Committed, Fulfilled, Breached
+  initial Pending
+  terminal Fulfilled, Breached
+  var approvals: int(0..3) = 0
+  var frozen: bool = false
+  transition approve: Pending -> Pending when !frozen && approvals < 3 set approvals = approvals + 1
+  transition commit: Pending -> Committed when !frozen && approvals >= 2
+  transition fulfill: Committed -> Fulfilled when !frozen
+  transition breach: Committed -> Breached set frozen = true
+  invariant quorum-before-commit: state == Committed => approvals >= 2
+  invariant no-fulfill-when-frozen: state == Fulfilled => !frozen
+  invariant breach-sets-frozen: state == Breached => frozen
+  eventually reaches-terminal: state == Fulfilled || state == Breached
+
+promise settle-transfer
+  says "Every admitted transfer settles within 30s without double-spend."
+  why  "Financial actions must carry bounded, machine-checked obligations."
+  for  "settle_transfer"
+  requires "authorized", "funds_reserved"
+  ensures  "ledger_balanced", "receipt_recorded"
+  invariant "no_double_spend"
+  within 30s
+  on_breach freeze
+
+law allow-public-read
+  says "Agents may read public docs unless suspended."
+  why  "Read-only access to public documents is safe for active principals."
+  on action read of Doc
+  permit when resource.public == true
+  ask when context.audit == true
+  forbid when principal.suspended == true
+
+proof forbid-wins-over-permit
+  proves "allow-public-read"
+  for_all permit: bool, ask: bool
+  assert verdict(permit, ask, true) == deny
+
+proof bounded-budget-safe
+  proves "settle-transfer"
+  for_all used: int(0..5), delta: int(0..5)
+  assert (used + delta <= 5) => (used <= 5)
+
+test active-user-reads-public-doc
+  for "allow-public-read"
+  principal User::"alice" { suspended: false }
+  resource Doc::"readme" { public: true }
+  context { audit: false }
+  expect allow
+
+test suspended-user-is-denied
+  for "allow-public-read"
+  principal User::"mallory" { suspended: true }
+  resource Doc::"readme" { public: true }
+  context { audit: false }
+  expect deny

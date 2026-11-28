@@ -1,0 +1,28 @@
+{
+  "name": "@retvest/ril",
+  "version": "0.3.0",
+  "description": "Zero-dependency Node SDK for the RIL (Retvest Intent Language) verifier CLI",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./src/index.mjs",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.mjs"
+    }
+  },
+  "files": ["src"],
+  "engines": { "node": ">=18" },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/retvest/RIL.git",
+    "directory": "sdks/ts"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,204 @@
+laws "Retvest Enterprise 11-Surface Constitution" version 2
+
+# =============================================================================
+# 1. GLOBAL CORE & PRIVATE WORK ISOLATION
+# =============================================================================
+
+law private-work-strict-isolation
+  says "Only the owner may read or run Private Work; admins have zero override and outside providers are forbidden."
+  why  "Private Work is strictly personal and must never leak to admins or external LLM providers."
+  on   action read of PrivateWork
+  forbid when resource.owner != principal
+  forbid when context has provider_external && context.provider_external == true
+  permit when resource.owner == principal
+  evidence proved by lean "formal/PolicyAlgebra.lean"
+
+law anti-self-approval-ui-fence
+  says "Sidekick computer-use and browser extensions must never click or type inside RIL Approvals or SSO/MFA windows."
+  why  "Prevents an agent from breaking four-eyes approval by clicking Approve in the user's own UI."
+  on   action ui_action of AccessibilityTarget
+  forbid when context has stopped && context.stopped == true
+  forbid when context has target_app && (context.target_app like "*ril*approval*" || context.target_app like "*retvest*approvals*" || context.target_app like "*1Password*" || context.target_app like "*Keychain*" || context.target_app like "*SSO*")
+  ask  when context has target_app
+  evidence proved by tlaplus "formal/ActionLifecycle.tla"
+
+law global-data-taint-and-redaction
+  says "Untrusted inputs taint sessions against privileged mutations; secrets, financial IDs, and KYC PII are redacted before ledger commit."
+  why  "Stops cross-surface prompt injection and prevents secrets or GDPR Art. 9 PII from entering WORM storage."
+  on   data
+  taint "untrusted" from "WebFetch", "ReadIssue", "inbound_email", "inbound_chat", "ticket_body", "ocr_extract", "telegram_receive", "browser.capture"
+  taint "private_work" from "private_work.read", "private_work.sum_sales"
+  taint "kyc_pii" from "onboarding.read_id_doc", "onboarding.liveness_check"
+  forbid_tainted "untrusted" on "Bash", "Write", "Edit", "refund", "reset_access", "post_document", "staged_change", "computer_use", "ui_action"
+  forbid_tainted "private_work" on "external_provider_call", "shared_connector_export"
+  forbid_tainted "kyc_pii" on "external_provider_call", "external_webhook"
+  redact "*.api_key", "*.password", "*.secret_ref", "*.hf_token", "*.mfa_secret", "*.reset_token", "*.ssn", "*.iban", "*.card_number", "*.passport_no", "*.biometric_template", "*.pem"
+  evidence proved by lean "formal/TaintLattice.lean"
+
+# =============================================================================
+# 2. ENGINE MANAGER & 100K-AGENT KIMI K3 CLUSTER CONTROL
+# =============================================================================
+
+law engine-kimi-cluster-bounds
+  says "Pin production clusters to approved models and bound concurrency and delegation depth."
+  why  "Prevents unauthorized model execution and recursive 100k-agent fan-out storms."
+  on   cluster "retvest-prod-gpu"
+  allow_models "kimi-k3", "claude-sonnet-4"
+  max_agents 100000
+  max_delegation_depth 3
+  evidence proved by bend "formal/ClusterEval.bend"
+
+law engine-supply-chain-and-switch
+  says "GPU model imports require signed safetensors; production switches and quality overrides require human approval."
+  why  "Blocks pickle RCE on GPU hosts and prevents unreviewed traffic cutovers."
+  on   action engine_deploy of Deployment
+  forbid when !(context has signed_catalogue && context.signed_catalogue == true)
+  forbid when context has format && (context.format == "pickle" || context.format == "pt" || context.format == "bin")
+  forbid when context has trust_remote_code && context.trust_remote_code == true && !(context has code_hash_pinned && context.code_hash_pinned == true)
+  ask  when context has environment && context.environment == "production"
+  permit when context has signed_catalogue && context.signed_catalogue == true
+  evidence proved by tlaplus "formal/ClusterControl.tla"
+
+law engine-production-cutover-sequence
+  says "Production Kimi K3 cutovers require a prior green CI pass within 24h, run at most once per rollout, and need 2 approvers."
+  why  "Prevents unverified deploys, double cutovers, and single-approver production outages."
+  on   sequence "engine_deploy"
+  requires_prior "ci_pass" within 24h
+  at_most_once
+  quorum 2
+  evidence proved by tlaplus "formal/SequenceSafety.tla"
+
+# =============================================================================
+# 3. SERVICE AGENT (REFUNDS & ORDER UPDATES)
+# =============================================================================
+
+law service-agent-refund-guard
+  says "Customer refunds always require human approval and block unverified high-value payouts."
+  why  "Prevents prompt-injected or runaway financial payouts."
+  on   action refund of Order
+  forbid when context has amount_minor && context.amount_minor > 500000 && !(principal has roles && principal.roles.contains("finance_approver"))
+  ask  when context has amount_minor && context.amount_minor > 0
+  evidence watched
+
+law service-agent-financial-budget
+  says "Bound per-agent refund velocity and monetary spend, freezing the agent on breach."
+  why  "Contains blast radius if an agent loops or is compromised."
+  on   budget per agent
+  limit actions <= 120 per 1m
+  limit mutations <= 15 per 5m
+  limit spend_minor <= 1000000 per 1h
+  on_breach freeze
+  evidence proved by tlaplus "formal/BudgetCircuitBreaker.tla"
+
+# =============================================================================
+# 4. HELPDESK (IT ACCESS & PASSWORD RESETS)
+# =============================================================================
+
+law helpdesk-reset-access-guard
+  says "Never auto-reset owner or security-admin accounts; all other access resets require human approval."
+  why  "Stops social-engineered IT tickets from causing full tenant takeover."
+  on   action reset_access of UserAccount
+  forbid when context has target_role && (context.target_role == "owner" || context.target_role == "security_admin")
+  ask  when context has ticket_id
+  evidence watched
+
+# =============================================================================
+# 5. DATA ANALYST (STAGED SQL WRITES)
+# =============================================================================
+
+law data-analyst-staged-write-guard
+  says "Block DDL and unbounded updates; every staged SQL write requires a diff preview and human approval."
+  why  "Prevents accidental or injected production table corruption."
+  on   action staged_change of DatabaseTable
+  forbid when context has sql && (context.sql like "*DROP *" || context.sql like "*TRUNCATE *" || context.sql like "*ALTER *" || context.sql like "*set_config*")
+  forbid when context has affected_rows && context.affected_rows > 1000
+  ask  when context has sql
+  evidence watched
+
+# =============================================================================
+# 6. BACK-OFFICE DOCUMENTS (INVOICES & ERP POSTING)
+# =============================================================================
+
+law back-office-erp-post-guard
+  says "Only approved documents may post to ERP; bank-detail changes require human approval."
+  why  "Prevents invoice OCR prompt injection from redirecting wire transfers."
+  on   action post_document of ErpRecord
+  forbid when !(context has status && context.status == "approved")
+  ask  when context has bank_details_changed && context.bank_details_changed == true
+  permit when context has status && context.status == "approved"
+  evidence watched
+
+# =============================================================================
+# 7. ONBOARDING / KYC (EU AMLR & FOUR-EYES)
+# =============================================================================
+
+law onboarding-kyc-four-eyes
+  says "KYC acceptance requires a certified vendor check, no unresolved sanctions hit, and independent four-eyes approval."
+  why  "Enforces EU AMLR / UK MLR compliance and blocks self-approved onboarding."
+  on   action onboarding_decision of OnboardingCase
+  forbid when context has decision && context.decision == "accept" && !(context has certified_id_check && context.certified_id_check == true)
+  forbid when context has sanctions_hit && context.sanctions_hit == true && context has decision && context.decision == "accept"
+  forbid when context has requester_id && context has approver_id && context.requester_id == context.approver_id
+  ask  when context has decision
+  evidence proved by kani "lifecycle::kani_proofs::no_self_approval_ever_admitted" in "ril-core"
+
+# =============================================================================
+# 8. AUTOMATION (RUNAWAY LOOP CIRCUIT BREAKER)
+# =============================================================================
+
+law automation-runaway-breaker
+  says "Cap tenant-wide automation velocity and freeze on breach."
+  why  "Prevents recursive trigger loops from saturating 100k-agent clusters."
+  on   budget per tenant
+  limit actions <= 50000 per 1m
+  limit mutations <= 5000 per 5m
+  on_breach freeze
+  evidence proved by tlaplus "formal/BudgetCircuitBreaker.tla"
+
+# =============================================================================
+# 9. OFFICE & BROWSER EXTENSIONS
+# =============================================================================
+
+law browser-extension-origin-guard
+  says "Forbid browser automation on RIL approvals, IdP/SSO, and banking origins; require approval on all other clicks."
+  why  "Stops malicious web DOM prompt injection from hijacking authenticated sessions."
+  on   action browser_click of BrowserTab
+  forbid when context has origin && (context.origin like "*login.retvest.com*" || context.origin like "*okta.com*" || context.origin like "*auth0.com*" || context.origin like "*bank*")
+  forbid when context has dom_changed && context.dom_changed == true
+  ask  when context has origin
+  evidence watched
+
+law excel-formula-injection-guard
+  says "Forbid external-network Excel formulas that exfiltrate spreadsheet data."
+  why  "Blocks WEBSERVICE and DDE formula injection."
+  on   action excel_formula of Workbook
+  forbid when context has formula && (context.formula like "*WEBSERVICE(*" || context.formula like "*HYPERLINK(*" || context.formula like "*cmd|*")
+  permit when context has formula
+  evidence watched
+
+# =============================================================================
+# 10. SIDEKICK DESKTOP & MOBILE (SENSES, VOICE & STOP PREEMPTION)
+# =============================================================================
+
+law sidekick-senses-and-stop-guard
+  says "Stop immediately preempts all screen and microphone capture; covert capture and emotion scoring are forbidden."
+  why  "Protects user privacy, wiretap/BIPA/EU AI Act Art. 5 compliance, and physical Stop authority."
+  on   action listen of AudioInput
+  forbid when context has stopped && context.stopped == true
+  forbid when !(context has consent_banner_visible && context.consent_banner_visible == true)
+  forbid when context has emotion_scoring && context.emotion_scoring == true
+  permit when context has consent_banner_visible && context.consent_banner_visible == true
+  evidence watched
+
+# =============================================================================
+# 11. RETVEST CODE & EXTERNAL CODING AGENTS
+# =============================================================================
+
+law coding-agent-shell-guard
+  says "Never run destructive deletes, force pushes, secret reads, or live policy edits from coding agents."
+  why  "Protects repositories, credentials, and the live RIL constitution."
+  on   action Bash of Tool
+  forbid when context.arguments has command && (context.arguments.command like "*rm -rf*" || context.arguments.command like "*rm -fr*" || context.arguments.command like "*git push --force*" || context.arguments.command like "*git push -f*" || context.arguments.command like "*.env*" || context.arguments.command like "*id_ed25519*" || context.arguments.command like "*retvest-ril-dev/policies*")
+  ask  when context.arguments has command && (context.arguments.command like "*curl *" || context.arguments.command like "*git push*")
+  permit when context.arguments has command
+  evidence watched

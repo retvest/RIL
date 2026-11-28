@@ -1,0 +1,56 @@
+name: "RIL — Prove & Govern AI"
+description: "Verify .ril machines, promises, laws, proofs, and inline tests, and block PRs that weaken laws."
+branding:
+  icon: "shield"
+  color: "blue"
+
+inputs:
+  file:
+    description: "Path to the .ril file to verify."
+    required: false
+    default: "laws.ril"
+  base-file:
+    description: "Optional baseline .ril file for non-weakening diff gate (`ril laws diff`)."
+    required: false
+    default: ""
+  version:
+    description: "RIL release version to install (or `source` to build from this checkout)."
+    required: false
+    default: "source"
+
+outputs:
+  digest:
+    description: "Canonical SHA-256 digest of the verified .ril file."
+    value: ${{ steps.check.outputs.digest }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Build or install ril
+      shell: bash
+      run: |
+        set -euo pipefail
+        if [ "${{ inputs.version }}" = "source" ]; then
+          cargo build --release --manifest-path "${{ github.action_path }}/ril-core/Cargo.toml"
+          echo "${{ github.action_path }}/ril-core/target/release" >> "$GITHUB_PATH"
+        else
+          curl -fsSL "https://github.com/retvest/RIL/releases/download/v${{ inputs.version }}/install.sh" | sh -s -- --version "${{ inputs.version }}"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+        fi
+
+    - name: Verify .ril file (machines, promises, laws, proofs, tests)
+      id: check
+      shell: bash
+      run: |
+        set -euo pipefail
+        OUT=$(ril check "${{ inputs.file }}" --json)
+        echo "$OUT"
+        DIGEST=$(echo "$OUT" | python3 -c "import json,sys; print(json.load(sys.stdin).get('digest',''))")
+        echo "digest=$DIGEST" >> "$GITHUB_OUTPUT"
+
+    - name: Non-weakening diff gate
+      if: ${{ inputs.base-file != '' }}
+      shell: bash
+      run: |
+        set -euo pipefail
+        ril laws diff "${{ inputs.base-file }}" "${{ inputs.file }}"

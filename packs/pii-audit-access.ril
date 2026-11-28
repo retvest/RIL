@@ -1,0 +1,129 @@
+ril "Enterprise Pack: PII Audit Access" version 3
+
+# A request for personal data is justified, approved by two reviewers, granted, and read. Every
+# read is audited before the case closes; a policy violation revokes access for good.
+
+machine pii-access
+  states Requested, Approved, Granted, Closed, Revoked
+  initial Requested
+  terminal Closed, Revoked
+  var approvals: int(0..3) = 0
+  var audited: bool = false
+  var revoked: bool = false
+  transition approve: Requested -> Requested when !revoked && approvals < 3 set approvals = approvals + 1
+  transition authorize: Requested -> Approved when !revoked && approvals >= 2
+  transition grant: Approved -> Granted when !revoked
+  transition record_audit: Granted -> Granted when !audited set audited = true
+  transition close: Granted -> Closed when !revoked && audited
+  transition revoke: Granted -> Revoked set revoked = true
+  invariant approved-before-grant: (state == Granted || state == Closed) => approvals >= 2
+  invariant audited-before-close: state == Closed => audited
+  invariant no-close-when-revoked: state == Closed => !revoked
+  invariant revoke-sets-flag: state == Revoked => revoked
+  eventually reaches-terminal: state == Closed || state == Revoked
+
+promise audited-pii-read
+  says "Every PII read is approved, audited, and finished within 15m or access is frozen."
+  why  "Personal data access must leave a bounded, machine-checked audit trail."
+  for  "read_pii"
+  requires "authorized", "approved", "audit_open"
+  ensures  "audit_recorded", "access_closed"
+  invariant "no_unaudited_read"
+  within 15m
+  on_breach freeze
+
+law pii-access-rbac
+  says "Only an active compliance officer may read PII, and never their own record."
+  why  "Limits personal data to the audit role and prevents self-review."
+  on action read of PersonalRecord
+  permit when principal.role == "compliance"
+  forbid when principal.suspended == true
+  forbid when resource.subject == principal.name
+
+law pii-sensitivity-limits
+  says "Sensitive records need a human; special-category records are refused."
+  why  "Bounds exposure from a single read however many approvers agree."
+  on action read of PersonalRecord
+  permit when principal.role == "compliance" && resource.sensitivity <= 2
+  ask    when resource.sensitivity > 2
+  forbid when resource.sensitivity > 4
+
+law pii-data-taint-and-redaction
+  says "Personal data never leaves to external parties, and credentials are redacted from the audit log."
+  why  "Stops PII exfiltration and keeps secrets out of write-once audit storage."
+  on   data
+  taint "pii" from "pii.read", "onboarding.read_id_doc", "crm.export_contact"
+  taint "untrusted" from "WebFetch", "inbound_email", "ticket_body"
+  forbid_tainted "pii" on "external_provider_call", "external_webhook", "shared_connector_export"
+  forbid_tainted "untrusted" on "pii.read", "grant_access", "reset_access"
+  redact "*.ssn", "*.iban", "*.card_number", "*.passport_no", "*.password", "*.api_key", "*.reset_token"
+
+proof forbid-wins-over-permit
+  proves "pii-access-rbac"
+  for_all permit: bool, ask: bool
+  assert verdict(permit, ask, true) == deny
+
+proof ask-holds-a-permitted-action
+  proves "pii-sensitivity-limits"
+  for_all permit: bool
+  assert verdict(permit, true, false) == hold
+
+proof default-deny-when-no-rule-matches
+  proves "pii-access-rbac"
+  assert verdict(false, false, false) == deny
+
+proof two-approvals-imply-one
+  proves "audited-pii-read"
+  for_all approvals: int(0..3)
+  assert (approvals >= 2) => (approvals >= 1)
+
+proof breach-freezes-even-a-permitted-read
+  proves "audited-pii-read"
+  for_all permit: bool, ask: bool
+  assert promise_with_laws(false, true, true, true, freeze, permit, ask, false) == deny
+
+proof fulfilled-promise-with-no-forbid-allows
+  proves "audited-pii-read"
+  assert promise(true, true, true, true, freeze) == allow
+
+test compliance-officer-reads-a-record
+  for "pii-access-rbac"
+  principal User::"cass" { role: "compliance", suspended: false, name: "cass" }
+  resource PersonalRecord::"r-1" { subject: "sam", sensitivity: 1 }
+  expect allow
+
+test suspended-officer-is-denied
+  for "pii-access-rbac"
+  principal User::"cass" { role: "compliance", suspended: true, name: "cass" }
+  resource PersonalRecord::"r-2" { subject: "sam", sensitivity: 1 }
+  expect deny
+
+test officer-cannot-read-their-own-record
+  for "pii-access-rbac"
+  principal User::"cass" { role: "compliance", suspended: false, name: "cass" }
+  resource PersonalRecord::"r-3" { subject: "cass", sensitivity: 1 }
+  expect deny
+
+test non-compliance-role-is-denied-by-default
+  for "pii-access-rbac"
+  principal User::"dev" { role: "engineer", suspended: false, name: "dev" }
+  resource PersonalRecord::"r-4" { subject: "sam", sensitivity: 1 }
+  expect deny
+
+test low-sensitivity-is-allowed
+  for "pii-sensitivity-limits"
+  principal User::"cass" { role: "compliance", suspended: false, name: "cass" }
+  resource PersonalRecord::"r-5" { subject: "sam", sensitivity: 2 }
+  expect allow
+
+test high-sensitivity-holds-for-a-human
+  for "pii-sensitivity-limits"
+  principal User::"cass" { role: "compliance", suspended: false, name: "cass" }
+  resource PersonalRecord::"r-6" { subject: "sam", sensitivity: 3 }
+  expect hold
+
+test special-category-is-refused
+  for "pii-sensitivity-limits"
+  principal User::"cass" { role: "compliance", suspended: false, name: "cass" }
+  resource PersonalRecord::"r-7" { subject: "sam", sensitivity: 5 }
+  expect deny

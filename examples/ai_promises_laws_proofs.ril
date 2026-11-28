@@ -1,0 +1,70 @@
+ril "AI Promises Laws And Proofs" version 3
+
+promise settle-transfer
+  says "Every admitted transfer settles within 30s without double-spend."
+  why  "AI agents promising financial outcomes must carry bounded, verifiable obligations."
+  for  "settle_transfer"
+  requires "authorized", "funds_reserved"
+  ensures  "ledger_balanced", "receipt_recorded"
+  invariant "no_double_spend"
+  within 30s
+  on_breach freeze
+  evidence proved by tlaplus "formal/PromiseContract.tla"
+
+law allow-public-read
+  says "Agents may read public docs unless suspended."
+  why  "Read-only access to public documents is safe for active principals."
+  on action read of Doc
+  permit when resource.public == true
+  ask when context.audit == true
+  forbid when principal.suspended == true
+  evidence proved by lean "formal/PromiseAlgebra.lean"
+
+proof forbid-beats-all-permits-and-asks
+  proves "allow-public-read"
+  for_all permit: bool, ask: bool
+  assert verdict(permit, ask, true) == deny
+  by auto
+
+proof default-deny-when-no-rule-matches
+  proves "allow-public-read"
+  assert verdict(false, false, false) == deny
+  by lean
+
+proof freeze-breach-always-denies-even-with-permit
+  proves "settle-transfer"
+  for_all permit: bool, ask: bool
+  assert promise_with_laws(false, true, true, true, freeze, permit, ask, false) == deny
+  by bend
+
+proof fulfilled-promise-with-no-forbid-allows
+  proves "settle-transfer"
+  assert promise(true, true, true, true, freeze) == allow
+  by auto
+
+proof bounded-budget-never-exceeds-cap
+  proves "settle-transfer"
+  for_all used: int(0..5), delta: int(0..5)
+  assert (used + delta <= 5) => (used <= 5)
+  by auto
+
+test public-doc-allows-active-user
+  for "allow-public-read"
+  principal User::"alice" { suspended: false }
+  resource Doc::"readme" { public: true }
+  context { audit: false }
+  expect allow
+
+test suspended-user-is-denied
+  for "allow-public-read"
+  principal User::"mallory" { suspended: true }
+  resource Doc::"readme" { public: true }
+  context { audit: false }
+  expect deny
+
+test audit-mode-holds-for-approval
+  for "allow-public-read"
+  principal User::"alice" { suspended: false }
+  resource Doc::"readme" { public: true }
+  context { audit: true }
+  expect hold

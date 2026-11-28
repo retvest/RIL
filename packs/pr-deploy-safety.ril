@@ -1,0 +1,134 @@
+ril "Enterprise Pack: PR and Deploy Safety" version 3
+
+# A pull request collects bounded approvals and passing checks, is merged, and only then deploys.
+# A failed deploy freezes the release for good. Agents may not run destructive shell commands or
+# write outside their workspace.
+
+machine pr-deploy
+  states Open, Approved, Merged, Deployed, Failed
+  initial Open
+  terminal Deployed, Failed
+  var approvals: int(0..3) = 0
+  var checks_passed: int(0..3) = 0
+  var frozen: bool = false
+  transition approve: Open -> Open when !frozen && approvals < 3 set approvals = approvals + 1
+  transition pass_check: Open -> Open when !frozen && checks_passed < 3 set checks_passed = checks_passed + 1
+  transition mark_ready: Open -> Approved when !frozen && approvals >= 2 && checks_passed >= 2
+  transition merge: Approved -> Merged when !frozen
+  transition deploy: Merged -> Deployed when !frozen
+  transition fail_deploy: Merged -> Failed set frozen = true
+  invariant approved-before-merge: (state == Merged || state == Deployed) => approvals >= 2
+  invariant checks-before-merge: (state == Merged || state == Deployed) => checks_passed >= 2
+  invariant no-deploy-when-frozen: state == Deployed => !frozen
+  invariant failure-freezes-the-release: state == Failed => frozen
+  eventually reaches-terminal: state == Deployed || state == Failed
+
+promise deploy-release
+  says "Every merged change deploys within 10m or the release is frozen."
+  why  "Deploys must carry bounded, machine-checked obligations."
+  for  "deploy_release"
+  requires "approved", "checks_green", "merged"
+  ensures  "deploy_recorded", "rollback_ready"
+  invariant "no_unreviewed_deploy"
+  within 10m
+  on_breach freeze
+
+law workspace-write-guard
+  says "Agents may write only inside their own workspace."
+  why  "Keeps edits away from other repositories, credentials, and the host."
+  on action Write of Tool
+  permit when context has path && context.path like "/workspace/*"
+  forbid when context has path && context.path like "*..*"
+  forbid when context has path && context.path like "*.env*"
+
+law shell-safety-guard
+  says "Never run destructive deletes or force pushes; ask before network or push commands."
+  why  "Protects repositories and release history from irreversible commands."
+  on action Bash of Tool
+  forbid when context has command && (context.command like "*rm -rf*" || context.command like "*git push --force*" || context.command like "*git push -f*")
+  ask  when context has command && (context.command like "*curl *" || context.command like "*git push*")
+  permit when context has command
+
+proof forbid-wins-over-permit
+  proves "shell-safety-guard"
+  for_all permit: bool, ask: bool
+  assert verdict(permit, ask, true) == deny
+
+proof ask-holds-a-permitted-action
+  proves "shell-safety-guard"
+  for_all permit: bool
+  assert verdict(permit, true, false) == hold
+
+proof default-deny-when-no-rule-matches
+  proves "workspace-write-guard"
+  assert verdict(false, false, false) == deny
+
+proof two-approvals-imply-one
+  proves "deploy-release"
+  for_all approvals: int(0..3)
+  assert (approvals >= 2) => (approvals >= 1)
+
+proof failed-deploy-freezes-even-a-permitted-action
+  proves "deploy-release"
+  for_all permit: bool, ask: bool
+  assert promise_with_laws(false, true, true, true, freeze, permit, ask, false) == deny
+
+proof fulfilled-promise-with-no-forbid-allows
+  proves "deploy-release"
+  assert promise(true, true, true, true, freeze) == allow
+
+test write-inside-workspace-is-allowed
+  for "workspace-write-guard"
+  principal Agent::"a1" { name: "a1" }
+  resource Tool::"Write" { name: "Write" }
+  context { path: "/workspace/src/main.rs" }
+  expect allow
+
+test write-with-parent-traversal-is-denied
+  for "workspace-write-guard"
+  principal Agent::"a1" { name: "a1" }
+  resource Tool::"Write" { name: "Write" }
+  context { path: "/workspace/../etc/passwd" }
+  expect deny
+
+test write-to-env-file-is-denied
+  for "workspace-write-guard"
+  principal Agent::"a1" { name: "a1" }
+  resource Tool::"Write" { name: "Write" }
+  context { path: "/workspace/.env" }
+  expect deny
+
+test write-outside-workspace-is-denied-by-default
+  for "workspace-write-guard"
+  principal Agent::"a1" { name: "a1" }
+  resource Tool::"Write" { name: "Write" }
+  context { path: "/etc/hosts" }
+  expect deny
+
+test plain-shell-command-is-allowed
+  for "shell-safety-guard"
+  principal Agent::"a1" { name: "a1" }
+  resource Tool::"Bash" { name: "Bash" }
+  context { command: "ls -la" }
+  expect allow
+
+test recursive-delete-is-denied
+  for "shell-safety-guard"
+  principal Agent::"a1" { name: "a1" }
+  resource Tool::"Bash" { name: "Bash" }
+  context { command: "rm -rf /" }
+  expect deny
+
+test force-push-is-denied
+  for "shell-safety-guard"
+  principal Agent::"a1" { name: "a1" }
+  resource Tool::"Bash" { name: "Bash" }
+  context { command: "git push --force origin main" }
+  expect deny
+
+test curl-holds-for-a-human
+  for "shell-safety-guard"
+  principal Agent::"a1" { name: "a1" }
+  resource Tool::"Bash" { name: "Bash" }
+  context { command: "curl https://example.com" }
+  expect hold

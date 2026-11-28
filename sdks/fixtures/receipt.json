@@ -1,0 +1,20 @@
+{
+  "format": "ril.receipt.v1",
+  "tenant": "acme",
+  "action_id": "a1",
+  "rows": [
+    {
+      "entry": "{\"action_id\":\"a1\",\"event\":{\"kind\":\"started\"},\"prev_hash\":\"0000000000000000000000000000000000000000000000000000000000000000\",\"seq\":1,\"tenant\":\"acme\",\"timestamp\":\"2026-11-13T10:00:01Z\"}",
+      "proof": [
+        "aa80a5fd8ac1f1ad8e087105432189856c95014708d8c5b1e675ed1612de8443"
+      ]
+    },
+    {
+      "entry": "{\"action_id\":\"a1\",\"event\":{\"kind\":\"started\"},\"prev_hash\":\"c59d40cd99e1c622a3fb5f8d55dd12657b98bc08740a4274a73531f2c72820cc\",\"seq\":2,\"tenant\":\"acme\",\"timestamp\":\"2026-11-13T10:00:02Z\"}",
+      "proof": [
+        "bdb463b206bb3dc7d8356edd3c873dadf01f2f83e30215bc865f408f51fb378e"
+      ]
+    }
+  ],
+  "checkpoint": "localhost/ril/acme\n2\n1F/GfoKObd3mqbEmlnCIKuG+upVboEZACP8CMYcFwTA=\n\n— localhost/ril/acme hlRMfNtYnokTqTN8YMGAEb1WKz9ErtWoKwKnt9zy3O5XMM29Uincks5GSjq0H2x0YFDxr0lDwcp9uWLgP1phZO392AA=\n"
+}

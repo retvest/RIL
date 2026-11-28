@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RIL Interactive Playground</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      background: #0d1117;
+      color: #e6edf3;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .header {
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+    .logo { font-weight: 700; font-size: 18px; color: #58a6ff; }
+    .preset-select {
+      background: #0d1117;
+      color: #e6edf3;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      outline: none;
+    }
+    .preset-select:hover { border-color: #58a6ff; }
+    .btn {
+      background: #238636;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+    .btn:hover { background: #2ea043; }
+    .btn:disabled { background: #30363d; color: #8b949e; cursor: not-allowed; }
+    .btn-secondary {
+      background: #21262d;
+      color: #e6edf3;
+      border: 1px solid #30363d;
+    }
+    .btn-secondary:hover { background: #30363d; border-color: #58a6ff; }
+    .btn-secondary:disabled { background: #161b22; }
+    .main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+    .editor-pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #30363d;
+      overflow: hidden;
+    }
+    .editor-header {
+      background: #161b22;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #30363d;
+      flex-shrink: 0;
+    }
+    .editor-title { font-weight: 600; font-size: 14px; }
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-ready { background: #1f6feb; color: white; }
+    .status-success { background: #238636; color: white; }
+    .status-error { background: #da3633; color: white; }
+    .editor-container {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+    .line-numbers {
+      background: #0d1117;
+      color: #6e7681;
+      padding: 16px 8px;
+      text-align: right;
+      user-select: none;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      font-size: 13px;
+      line-height: 20px;
+      border-right: 1px solid #21262d;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .editor {
+      flex: 1;
+      background: #0d1117;
+      color: #e6edf3;
+      border: none;
+      outline: none;
+      resize: none;
+      padding: 16px;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      font-size: 13px;
+      line-height: 20px;
+      tab-size: 2;
+      overflow: auto;
+    }
+    .output-pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .tabs {
+      display: flex;
+      background: #161b22;
+      border-bottom: 1px solid #30363d;
+      flex-shrink: 0;
+    }
+    .tab {
+      padding: 12px 20px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      font-size: 14px;
+      font-weight: 500;
+      color: #8b949e;
+      transition: all 0.2s;
+    }
+    .tab:hover { color: #e6edf3; background: #21262d; }
+    .tab.active { color: #58a6ff; border-bottom-color: #58a6ff; background: #0d1117; }
+    .tab-content {
+      flex: 1;
+      overflow: auto;
+      padding: 20px;
+      display: none;
+    }
+    .tab-content.active { display: block; }
+    .result-card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .result-card.success { border-left: 4px solid #238636; }
+    .result-card.error { border-left: 4px solid #da3633; }
+    .result-card-title {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .result-card-body {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #8b949e;
+    }
+    .icon-check { color: #238636; }
+    .icon-x { color: #da3633; }
+    .code-output {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 16px;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      overflow-x: auto;
+      white-space: pre;
+      position: relative;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #21262d;
+      color: #e6edf3;
+      border: 1px solid #30363d;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .copy-btn:hover { background: #30363d; }
+    .empty-state {
+      text-align: center;
+      color: #6e7681;
+      padding: 60px 20px;
+    }
+    .empty-state-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+    .empty-state-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+    .empty-state-desc { font-size: 14px; }
+    .framework-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .framework-btn {
+      background: #21262d;
+      color: #e6edf3;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .framework-btn:hover { border-color: #58a6ff; }
+    .framework-btn.active { background: #1f6feb; color: white; border-color: #1f6feb; }
+    .import-controls {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+      align-items: center;
+    }
+    .import-textarea {
+      width: 100%;
+      background: #0d1117;
+      color: #e6edf3;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 12px;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      font-size: 13px;
+      resize: vertical;
+      min-height: 120px;
+    }
+    .digest-box {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      padding: 12px;
+      font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+      font-size: 12px;
+      margin-top: 12px;
+      word-break: break-all;
+    }
+    .digest-label {
+      color: #6e7681;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">⚡ RIL Interactive Playground</div>
+    <select class="preset-select" id="presetSelect">
+      <option value="">Load a preset...</option>
+    </select>
+    <button class="btn" id="checkBtn" title="Cmd/Ctrl+Enter">⚙️ Check & Prove</button>
+    <button class="btn-secondary btn" id="genRustBtn">🦀 Generate Rust</button>
+    <button class="btn-secondary btn" id="genTsBtn">📘 Generate TypeScript</button>
+    <button class="btn-secondary btn" id="auditBtn">📋 Audit Pack</button>
+    <button class="btn-secondary btn" id="importBtn">📥 Import</button>
+  </div>
+
+  <div class="main">
+    <div class="editor-pane">
+      <div class="editor-header">
+        <span class="editor-title">📝 RIL Source</span>
+        <span class="status-badge status-ready" id="editorStatus">Ready</span>
+      </div>
+      <div class="editor-container">
+        <div class="line-numbers" id="lineNumbers">1</div>
+        <textarea class="editor" id="editor" placeholder="Write your RIL v3 code here...\n\nmachine example\n  states A, B\n  initial A\n  terminal B\n  transition go: A -> B" spellcheck="false"></textarea>
+      </div>
+    </div>
+
+    <div class="output-pane">
+      <div class="tabs">
+        <div class="tab active" data-tab="check">🔍 Check & Prove</div>
+        <div class="tab" data-tab="codegen">🔧 Codegen</div>
+        <div class="tab" data-tab="audit">📋 Audit Pack</div>
+        <div class="tab" data-tab="import">📥 Import</div>
+      </div>
+
+      <div class="tab-content active" id="checkTab">
+        <div class="empty-state">
+          <div class="empty-state-icon">🔍</div>
+          <div class="empty-state-title">No results yet</div>
+          <div class="empty-state-desc">Click "Check & Prove" or press Cmd/Ctrl+Enter to verify your RIL code</div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="codegenTab">
+        <div class="empty-state">
+          <div class="empty-state-icon">🔧</div>
+          <div class="empty-state-title">No code generated yet</div>
+          <div class="empty-state-desc">Click "Generate Rust" or "Generate TypeScript" to generate state machines</div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="auditTab">
+        <div class="framework-selector">
+          <button class="framework-btn" data-framework="eu-ai-act">EU AI Act</button>
+          <button class="framework-btn" data-framework="soc2">SOC 2</button>
+          <button class="framework-btn" data-framework="iso-42001">ISO 42001</button>
+          <button class="framework-btn active" data-framework="all">All Frameworks</button>
+        </div>
+        <div class="empty-state">
+          <div class="empty-state-icon">📋</div>
+          <div class="empty-state-title">No audit pack generated</div>
+          <div class="empty-state-desc">Select a framework above and click "Audit Pack" to generate compliance reports</div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="importTab">
+        <div class="import-controls">
+          <select class="preset-select" id="importFromSelect">
+            <option value="cedar">AWS Cedar Policy</option>
+            <option value="codeowners">CODEOWNERS</option>
+            <option value="mcp">MCP Config</option>
+          </select>
+          <button class="btn" id="convertBtn">🔄 Convert to RIL</button>
+        </div>
+        <textarea class="import-textarea" id="importTextarea" placeholder="Paste your Cedar policy, CODEOWNERS, or MCP config here..."></textarea>
+        <div id="importResult"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const editor = document.getElementById('editor');
+    const lineNumbers = document.getElementById('lineNumbers');
+    const editorStatus = document.getElementById('editorStatus');
+    const presetSelect = document.getElementById('presetSelect');
+    const checkBtn = document.getElementById('checkBtn');
+    const genRustBtn = document.getElementById('genRustBtn');
+    const genTsBtn = document.getElementById('genTsBtn');
+    const auditBtn = document.getElementById('auditBtn');
+    const importBtn = document.getElementById('importBtn');
+    const convertBtn = document.getElementById('convertBtn');
+    const importTextarea = document.getElementById('importTextarea');
+    const importFromSelect = document.getElementById('importFromSelect');
+
+    let presets = [];
+    let currentFramework = 'all';
+
+    // Update line numbers
+    function updateLineNumbers() {
+      const lines = editor.value.split('\n').length;
+      lineNumbers.textContent = Array.from({ length: lines }, (_, i) => i + 1).join('\n');
+    }
+
+    editor.addEventListener('input', updateLineNumbers);
+    editor.addEventListener('scroll', () => {
+      lineNumbers.scrollTop = editor.scrollTop;
+    });
+
+    // Keyboard shortcuts
+    editor.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        checkBtn.click();
+      }
+    });
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabName = tab.dataset.tab;
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tabName + 'Tab').classList.add('active');
+      });
+    });
+
+    // Framework selector
+    document.querySelectorAll('.framework-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.framework-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFramework = btn.dataset.framework;
+      });
+    });
+
+    // Load presets
+    fetch('/api/presets')
+      .then(r => r.json())
+      .then(data => {
+        presets = data;
+        data.forEach(preset => {
+          const option = document.createElement('option');
+          option.value = preset.id;
+          option.textContent = preset.name;
+          presetSelect.appendChild(option);
+        });
+      });
+
+    presetSelect.addEventListener('change', (e) => {
+      const preset = presets.find(p => p.id === e.target.value);
+      if (preset) {
+        editor.value = preset.source;
+        updateLineNumbers();
+        editorStatus.textContent = 'Ready';
+        editorStatus.className = 'status-badge status-ready';
+      }
+    });
+
+    // Check & Prove
+    checkBtn.addEventListener('click', async () => {
+      const source = editor.value.trim();
+      if (!source) return;
+
+      checkBtn.disabled = true;
+      editorStatus.textContent = 'Checking...';
+      editorStatus.className = 'status-badge status-ready';
+
+      try {
+        const res = await fetch('/api/check', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ source })
+        });
+        const data = await res.json();
+
+        document.querySelector('[data-tab="check"]').click();
+
+        if (data.ok) {
+          const result = JSON.parse(data.result || '{}');
+          editorStatus.textContent = 'Success';
+          editorStatus.className = 'status-badge status-success';
+
+          let html = '';
+          if (result.machines) {
+            result.machines.forEach(m => {
+              html += `<div class="result-card ${m.verified ? 'success' : 'error'}">
+                <div class="result-card-title">
+                  <span class="${m.verified ? 'icon-check' : 'icon-x'}">${m.verified ? '✓' : '✗'}</span>
+                  Machine: ${escapeHtml(m.name)}
+                </div>
+                <div class="result-card-body">${m.verified ? 'All invariants verified' : 'Failed verification'}</div>
+              </div>`;
+            });
+          }
+          if (result.proofs) {
+            result.proofs.forEach(p => {
+              html += `<div class="result-card ${p.verified ? 'success' : 'error'}">
+                <div class="result-card-title">
+                  <span class="${p.verified ? 'icon-check' : 'icon-x'}">${p.verified ? '✓' : '✗'}</span>
+                  Proof: ${escapeHtml(p.name)}
+                </div>
+                <div class="result-card-body">${p.verified ? 'Proof verified' : escapeHtml(p.counterexample || 'Failed')}</div>
+              </div>`;
+            });
+          }
+          if (result.tests) {
+            result.tests.forEach(t => {
+              html += `<div class="result-card ${t.passed ? 'success' : 'error'}">
+                <div class="result-card-title">
+                  <span class="${t.passed ? 'icon-check' : 'icon-x'}">${t.passed ? '✓' : '✗'}</span>
+                  Test: ${escapeHtml(t.name)}
+                </div>
+                <div class="result-card-body">${t.passed ? 'Test passed' : 'Test failed'}</div>
+              </div>`;
+            });
+          }
+          document.getElementById('checkTab').innerHTML = html || '<div class="result-card success"><div class="result-card-title"><span class="icon-check">✓</span> Validation Success</div><div class="result-card-body">All checks passed</div></div>';
+        } else {
+          editorStatus.textContent = 'Error';
+          editorStatus.className = 'status-badge status-error';
+          document.getElementById('checkTab').innerHTML = `<div class="result-card error">
+            <div class="result-card-title"><span class="icon-x">✗</span> Validation Failed</div>
+            <div class="result-card-body"><pre style="color:#e6edf3;white-space:pre-wrap;">${escapeHtml(data.stderr || 'Unknown error')}</pre></div>
+          </div>`;
+        }
+      } catch (err) {
+        editorStatus.textContent = 'Error';
+        editorStatus.className = 'status-badge status-error';
+        document.getElementById('checkTab').innerHTML = `<div class="result-card error">
+          <div class="result-card-title"><span class="icon-x">✗</span> Request Failed</div>
+          <div class="result-card-body">${escapeHtml(err.message)}</div>
+        </div>`;
+      } finally {
+        checkBtn.disabled = false;
+      }
+    });
+
+    // Generate code
+    async function generateCode(lang) {
+      const source = editor.value.trim();
+      if (!source) return;
+
+      const btn = lang === 'rust' ? genRustBtn : genTsBtn;
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/codegen', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ source, lang })
+        });
+        const data = await res.json();
+
+        document.querySelector('[data-tab="codegen"]').click();
+
+        if (data.ok) {
+          document.getElementById('codegenTab').innerHTML = `
+            <div class="code-output">
+              <button class="copy-btn" onclick="navigator.clipboard.writeText(this.nextElementSibling.textContent)">📋 Copy</button>
+              <code>${escapeHtml(data.code)}</code>
+            </div>`;
+        } else {
+          document.getElementById('codegenTab').innerHTML = `<div class="result-card error">
+            <div class="result-card-title"><span class="icon-x">✗</span> Code Generation Failed</div>
+            <div class="result-card-body"><pre style="color:#e6edf3;white-space:pre-wrap;">${escapeHtml(data.stderr)}</pre></div>
+          </div>`;
+        }
+      } catch (err) {
+        document.getElementById('codegenTab').innerHTML = `<div class="result-card error">
+          <div class="result-card-title"><span class="icon-x">✗</span> Request Failed</div>
+          <div class="result-card-body">${escapeHtml(err.message)}</div>
+        </div>`;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    genRustBtn.addEventListener('click', () => generateCode('rust'));
+    genTsBtn.addEventListener('click', () => generateCode('ts'));
+
+    // Audit Pack
+    auditBtn.addEventListener('click', async () => {
+      const source = editor.value.trim();
+      if (!source) return;
+
+      auditBtn.disabled = true;
+
+      try {
+        const res = await fetch('/api/audit-pack', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ source, framework: currentFramework })
+        });
+        const data = await res.json();
+
+        document.querySelector('[data-tab="audit"]').click();
+
+        if (data.ok) {
+          const bundle = JSON.parse(data.bundle || '{}');
+          let html = `<div class="result-card success">
+            <div class="result-card-title"><span class="icon-check">✓</span> Audit Pack Generated</div>
+            <div class="result-card-body">Framework: ${currentFramework}</div>
+            ${bundle.bundle_digest ? `<div class="digest-box"><div class="digest-label">Bundle Digest:</div>${bundle.bundle_digest}</div>` : ''}
+            ${bundle.policy_digest ? `<div class="digest-box"><div class="digest-label">Policy Digest:</div>${bundle.policy_digest}</div>` : ''}
+          </div>`;
+
+          if (data.markdown) {
+            html += `<div class="code-output">
+              <button class="copy-btn" onclick="navigator.clipboard.writeText(this.nextElementSibling.textContent)">📋 Copy Markdown</button>
+              <code>${escapeHtml(data.markdown)}</code>
+            </div>`;
+          }
+
+          document.getElementById('auditTab').innerHTML = html;
+        } else {
+          document.getElementById('auditTab').innerHTML = `<div class="result-card error">
+            <div class="result-card-title"><span class="icon-x">✗</span> Audit Pack Failed</div>
+            <div class="result-card-body"><pre style="color:#e6edf3;white-space:pre-wrap;">${escapeHtml(data.stderr)}</pre></div>
+          </div>`;
+        }
+      } catch (err) {
+        document.getElementById('auditTab').innerHTML = `<div class="result-card error">
+          <div class="result-card-title"><span class="icon-x">✗</span> Request Failed</div>
+          <div class="result-card-body">${escapeHtml(err.message)}</div>
+        </div>`;
+      } finally {
+        auditBtn.disabled = false;
+      }
+    });
+
+    // Import
+    convertBtn.addEventListener('click', async () => {
+      const source = importTextarea.value.trim();
+      const from = importFromSelect.value;
+      if (!source) return;
+
+      convertBtn.disabled = true;
+
+      try {
+        const res = await fetch('/api/import', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ source, from })
+        });
+        const data = await res.json();
+
+        if (data.ok) {
+          document.getElementById('importResult').innerHTML = `
+            <div class="result-card success" style="margin-top:16px;">
+              <div class="result-card-title"><span class="icon-check">✓</span> Import Successful</div>
+              <div class="result-card-body">Converted from ${from} to RIL v3</div>
+            </div>
+            <div class="code-output" style="margin-top:12px;">
+              <button class="copy-btn" onclick="navigator.clipboard.writeText(this.nextElementSibling.textContent);document.getElementById('editor').value=this.nextElementSibling.textContent;updateLineNumbers();">📝 Load into Editor</button>
+              <code>${escapeHtml(data.ril)}</code>
+            </div>`;
+        } else {
+          document.getElementById('importResult').innerHTML = `<div class="result-card error" style="margin-top:16px;">
+            <div class="result-card-title"><span class="icon-x">✗</span> Import Failed</div>
+            <div class="result-card-body"><pre style="color:#e6edf3;white-space:pre-wrap;">${escapeHtml(data.stderr)}</pre></div>
+          </div>`;
+        }
+      } catch (err) {
+        document.getElementById('importResult').innerHTML = `<div class="result-card error" style="margin-top:16px;">
+          <div class="result-card-title"><span class="icon-x">✗</span> Request Failed</div>
+          <div class="result-card-body">${escapeHtml(err.message)}</div>
+        </div>`;
+      } finally {
+        convertBtn.disabled = false;
+      }
+    });
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    updateLineNumbers();
+  </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+ril "Agent Test Laws" version 3
+
+law allow-safe-reads
+  says "Agents may read safe files."
+  why  "Read-only access to safe files is permitted."
+  on action read of File
+  permit when resource.safe == true
+
+law deny-dangerous-writes
+  says "Agents may never write to dangerous files."
+  why  "Write access to dangerous files is forbidden."
+  on action write of File
+  forbid when resource.dangerous == true
+
+law ask-sensitive-operations
+  says "Agents must ask before accessing sensitive data."
+  why  "Sensitive operations require human approval."
+  on action access of Data
+  ask when resource.sensitive == true

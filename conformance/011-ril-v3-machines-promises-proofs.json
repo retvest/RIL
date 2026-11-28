@@ -1,0 +1,58 @@
+{
+  "spec": "\u00a72, \u00a73, \u00a74 (RIL 0.3)",
+  "about": "Unified RIL v3 programs with machine (bool + bounded int + eventually liveness), promise, law, proof, and inline test blocks verify deterministically and fail closed on broken invariants, deadlocks, false proofs, or failing inline tests.",
+  "laws": "ril \"v3-conformance\" version 3\n\nmachine escrow\n  states Open, Approved, Settled\n  initial Open\n  terminal Settled\n  var approvals: int(0..2) = 0\n  transition approve: Open -> Open when approvals < 2 set approvals = approvals + 1\n  transition lock: Open -> Approved when approvals >= 2\n  transition settle: Approved -> Settled\n  invariant quorum: state == Settled => approvals >= 2\n  eventually finishes: state == Settled\n\npromise settle-escrow\n  says \"Escrow settles within 30s.\"\n  why \"Bounded settlement.\"\n  for \"settle_escrow\"\n  requires \"approved\"\n  ensures \"receipt_recorded\"\n  within 30s\n  on_breach freeze\n\nlaw read-doc\n  says \"Allow public reads unless suspended.\"\n  why \"Read safety.\"\n  on action read of Doc\n  permit when resource.public == true\n  forbid when principal.suspended == true\n\nproof forbid-wins\n  proves \"read-doc\"\n  for_all permit: bool, ask: bool\n  assert verdict(permit, ask, true) == deny\n\ntest allow-public\n  for \"read-doc\"\n  principal User::\"alice\" { suspended: false }\n  resource Doc::\"r1\" { public: true }\n  expect allow\n",
+  "same_law_set": [
+    "ril \"v3-conformance\" version 3\n\ntest allow-public\n  for \"read-doc\"\n  principal User::\"alice\" { suspended: false }\n  resource Doc::\"r1\" { public: true }\n  expect allow\n\nproof forbid-wins\n  proves \"read-doc\"\n  for_all permit: bool, ask: bool\n  assert verdict(permit, ask, true) == deny\n\nlaw read-doc\n  says \"Allow public reads unless suspended.\"\n  why \"Read safety.\"\n  on action read of Doc\n  forbid when principal.suspended == true\n  permit when resource.public == true\n\npromise settle-escrow\n  says \"Escrow settles within 30s.\"\n  why \"Bounded settlement.\"\n  for \"settle_escrow\"\n  requires \"approved\"\n  ensures \"receipt_recorded\"\n  within 30s\n  on_breach freeze\n\nmachine escrow\n  states Open, Approved, Settled\n  initial Open\n  terminal Settled\n  var approvals: int(0..2) = 0\n  transition approve: Open -> Open when approvals < 2 set approvals = approvals + 1\n  transition lock: Open -> Approved when approvals >= 2\n  transition settle: Approved -> Settled\n  invariant quorum: state == Settled => approvals >= 2\n  eventually finishes: state == Settled\n"
+  ],
+  "decisions": [
+    {
+      "request": {
+        "principal": { "entity_type": "User", "id": "alice" },
+        "action": "read",
+        "resource": { "entity_type": "Doc", "id": "r1" },
+        "context": {},
+        "entities": [
+          [
+            { "entity_type": "User", "id": "alice" },
+            { "attributes": { "suspended": { "bool": false } }, "parents": [] }
+          ],
+          [
+            { "entity_type": "Doc", "id": "r1" },
+            { "attributes": { "public": { "bool": true } }, "parents": [] }
+          ]
+        ]
+      },
+      "verdict": "allow",
+      "laws": ["read-doc"],
+      "errors": []
+    },
+    {
+      "request": {
+        "principal": { "entity_type": "User", "id": "mallory" },
+        "action": "read",
+        "resource": { "entity_type": "Doc", "id": "r1" },
+        "context": {},
+        "entities": [
+          [
+            { "entity_type": "User", "id": "mallory" },
+            { "attributes": { "suspended": { "bool": true } }, "parents": [] }
+          ],
+          [
+            { "entity_type": "Doc", "id": "r1" },
+            { "attributes": { "public": { "bool": true } }, "parents": [] }
+          ]
+        ]
+      },
+      "verdict": "deny",
+      "laws": ["read-doc"],
+      "errors": []
+    }
+  ],
+  "refused": [
+    "ril \"bad-invariant\" version 3\n\nmachine broken\n  states A, B\n  initial A\n  terminal B\n  var ok: bool = false\n  transition go: A -> B\n  invariant must-be-ok: state == B => ok\n",
+    "ril \"bad-deadlock\" version 3\n\nmachine stuck\n  states A, B\n  initial A\n  terminal B\n  var x: bool = false\n  transition never: A -> B when x\n",
+    "ril \"bad-proof\" version 3\n\npromise p\n  says \"x\"\n  why \"y\"\n  for \"act\"\n  requires \"a\"\n\nproof lie\n  proves \"p\"\n  assert verdict(true, false, true) == allow\n",
+    "ril \"bad-test\" version 3\n\nlaw read-doc\n  says \"x\"\n  why \"y\"\n  on action read of Doc\n  forbid when true\n\ntest wrong-expect\n  for \"read-doc\"\n  principal User::\"a\" {}\n  resource Doc::\"d\" {}\n  expect allow\n"
+  ]
+}

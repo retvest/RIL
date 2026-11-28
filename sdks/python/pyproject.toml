@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "retvest-ril"
+version = "0.3.0"
+description = "Zero-dependency Python SDK for the RIL (Retvest Intent Language) verifier CLI"
+license = { text = "Apache-2.0" }
+requires-python = ">=3.10"
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/retvest/RIL"
+Repository = "https://github.com/retvest/RIL"
+Documentation = "https://github.com/retvest/RIL/blob/main/docs/RIL-SPEC-0.3.md"
+
+[tool.setuptools]
+packages = ["ril_sdk"]
